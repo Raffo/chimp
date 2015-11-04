@@ -1,0 +1,262 @@
+# this is an example of the Uber API
+# as a demonstration of an API spec in YAML
+swagger: '2.0'
+info:
+  title: Chimp API
+  description: Project Monkey Island's deployer
+  version: "0.0.2"
+# array of all schemes that your API supports
+schemes:
+  - http
+  - https
+# will be prefixed to all paths
+produces:
+  - application/json
+paths:
+  /deployments:
+    get:
+      summary: Deployments
+      description: |
+        The Deployment endpoint returns the list of apps currently running in the cluster
+      # apparently there is never an error! So cool!
+      responses:
+        '200':
+          description: Success - Get a list of names of deployed applications
+          schema:
+            allOf:
+              - $ref: '#/definitions/ListDeployments'
+          
+    post:
+      summary: Create a new deployment.
+      parameters:
+        - in: body
+          name: deployment
+          description: The description of the application to be deployed
+          required: true
+          schema:
+            $ref: '#/definitions/DeployRequest'
+      responses:
+        '200':
+          description: Success - A new app is created though no guarantee is giving for the instances to be running. 
+        '400': 
+          description: Error - some input parameters where invalid
+        '406': 
+          description: Error - Cannot deploy the application because of a backend error
+  '/deployments/{deployment-name}':
+    get:
+      summary: Get info on {deployment-name}
+      description: |
+        Allow to get informations on {deployment-name}
+      parameters:
+        - in: path
+          name: deployment-name
+          description: Name of application 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success - Info for deployment
+          schema:
+            allOf:
+              - $ref: '#/definitions/DeploymentObject'
+
+        '400':
+          description: Error - Invalid parameters
+        '406':
+          description: Error - Backend error
+    put:
+      summary: Updates an existing deployment or create a new one if not existing.
+      parameters:
+        - in: path
+          name: deployment-name
+          description: Name of application to deploy
+          required: true
+          type: string
+        - in: body
+          name: deployment
+          description: The description of the application to be deployed
+          required: true
+          schema:
+            $ref: '#/definitions/DeployRequest'
+      responses:
+        '200':
+          description: Success - deployment is updated
+        '400':
+          description: Error - invalid parameters
+        '406':
+          description: Error - backend error
+    delete:
+      summary: Deletes a deployment.
+      parameters:
+        - in: path
+          name: deployment-name
+          description: Name of application to deploy
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success - application is scheduled for deletion
+        '400':
+          description: Error - backend error 
+
+  '/deployments/{deployment-name}/replicas/{num}':
+    patch:
+      summary: Modifies the number of replicas for that deployment
+      description: Used to scale the current number of replicas/instances for that application
+      parameters:
+        - in: path
+          name: deployment-name
+          description: Name of application to scale
+          required: true
+          type: string
+        - in: path
+          name: num
+          description: Number of instances
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success - application is scaled
+        '400':
+          description: Error - cannot scale the application
+          
+          
+          
+          
+          
+          
+          
+definitions:
+
+# this is how everything is returned now. Data contains the content. 
+  generalResponseStructure:
+    properties:
+      cmd:
+        type: string
+        description: action executed... is this against REST? 
+      data:
+        type: object
+        description: the content
+      detail:
+        type: string
+        description:  this is used only in case of errors
+      title:
+        type: string
+        description: message coming from backend 
+
+  ListDeployments:
+    type: array
+    items:
+      type: string
+  
+  DeploymentObject:  # artifact in types.go
+    type: object
+    description: The main content
+    properties:
+      name: 
+        type: string
+        description: Name of the application deployed
+      message:
+        type: string
+        description: A message from the backend regarding the current status of the deployment # WHERE IS THIS USED? 
+      status: 
+        type: string
+        description: Short description of the status of the current 
+      labels: 
+        type: array  #this is actually a map
+        items:
+          type: string
+      env:
+        type: array #this is actually a map
+        items:
+          type: string
+      runningReplicas: 
+        type: array
+        items: 
+          $ref: '#/definitions/Replica'
+      requestedReplicas:
+        type: integer
+      CPUs:
+        type: number
+      Memory:
+        type: number
+      
+  Container:
+    type: object
+    properties:
+      imageurl:
+        type: string
+        description: the URL of the image used
+      ports:
+        type: array
+        items:
+          $ref: '#/definitions/PortType'
+      status:
+        type: string
+        description: The current status of the container
+      message:
+        type: string
+        description: NOT USED
+  Replica:
+    type: object
+    properties:
+      status:
+        type: string
+      message:
+        type: string
+      endpoints:
+        type: string
+      ports:
+        type: array
+        items:
+          $ref: '#/definitions/PortType'
+      containers:
+        type: array
+        items:
+          $ref: '#/definitions/Container'
+  PortType:
+    type: object
+    properties:
+      port:
+        type: integer
+      protocol: 
+        type: string
+  
+  DeployRequest:
+    type: object
+    properties:
+      name:
+        type: string
+      imageurl:
+        type: string
+        description: the URL of the image used
+      replicas:
+        type: integer
+        description: the number of replicas to use
+      ports:
+        type: array
+        items:
+          type: integer
+      labels:
+        type: array #this is actually a map
+        items:
+          type: string 
+      env:
+        type: array #this is actually a map
+        items:
+          type: string
+      CPULimit:
+        type: integer
+      MemoryLimit:
+        type: string
+      Force: 
+        type: boolean 
+      
+      
+ 
+
+        
+    
+  
+      
+  

@@ -1,0 +1,17 @@
+---
+backendType: marathon
+endpoint: http://10.10.0.1:8080,10.0.0.2:8080,10.0.0.3:8080
+fluentdEnabled: true
+debugEnabled: true
+oauth2Enabled: true
+TeamAuthorization: true
+authURL:  https://token.auth.zalando.com/access_token
+tokenURL: https://auth.zalando.com/z/oauth2/tokeninfo
+tlsCertfilePath: /path/to/your/certfile
+tlsKeyfilePath: /path/to/your/keyfile
+logFlushInterval: 5 #in seconds
+port: 8082
+AuthorizedTeams:
+  - Realm: teams
+    Uid: Techmonkeys
+    Cn: Platform Engineering / System

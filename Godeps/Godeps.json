@@ -1,0 +1,138 @@
+{
+	"ImportPath": "github.com/zalando-techmonkeys/chimp",
+	"GoVersion": "go1.5.1",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/BurntSushi/toml",
+			"Comment": "v0.1.0-9-g3883ac1",
+			"Rev": "3883ac1ce943878302255f538fce319d23226223"
+		},
+		{
+			"ImportPath": "github.com/docopt/docopt-go",
+			"Comment": "0.6.1-5-g854c423",
+			"Rev": "854c423c810880e30b9fecdabb12d54f4a92f9bb"
+		},
+		{
+			"ImportPath": "github.com/gambol99/go-marathon",
+			"Rev": "99e5dac1cfc32cafa8171ddd332fb1ec9a8c9159"
+		},
+		{
+			"ImportPath": "github.com/gin-gonic/gin",
+			"Comment": "v1.0rc1-148-g52fcc5d",
+			"Rev": "52fcc5dbf6e94df33ad313858fb94b713e9d1b4a"
+		},
+		{
+			"ImportPath": "github.com/golang/glog",
+			"Rev": "fca8c8854093a154ff1eb580aae10276ad6b1b5f"
+		},
+		{
+			"ImportPath": "github.com/kr/pretty",
+			"Comment": "go.weekly.2011-12-22-27-ge6ac2fc",
+			"Rev": "e6ac2fc51e89a3249e82157fa0bb7a18ef9dd5bb"
+		},
+		{
+			"ImportPath": "github.com/kr/text",
+			"Rev": "e373e137fafd8abd480af49182dea0513914adb4"
+		},
+		{
+			"ImportPath": "github.com/magiconair/properties",
+			"Comment": "v1.5.4",
+			"Rev": "359442d561ca28acd0fe503aa9f075f505bc9ed0"
+		},
+		{
+			"ImportPath": "github.com/manucorporat/sse",
+			"Rev": "fe6ea2c8e398672518ef204bf0fbd9af858d0e15"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-colorable",
+			"Rev": "40e4aedc8fabf8c23e040057540867186712faa5"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/mapstructure",
+			"Rev": "281073eb9eb092240d33ef253c404f1cca550309"
+		},
+		{
+			"ImportPath": "github.com/nu7hatch/gouuid",
+			"Rev": "179d4d0c4d8d407a32af483c2354df1d2c91e6c3"
+		},
+		{
+			"ImportPath": "github.com/olekukonko/tablewriter",
+			"Rev": "bc39950e081b457853031334b3c8b95cdfe428ba"
+		},
+		{
+			"ImportPath": "github.com/spf13/cast",
+			"Rev": "4d07383ffe94b5e5a6fa3af9211374a4507a0184"
+		},
+		{
+			"ImportPath": "github.com/spf13/jwalterweatherman",
+			"Rev": "3d60171a64319ef63c78bd45bd60e6eab1e75f8b"
+		},
+		{
+			"ImportPath": "github.com/spf13/pflag",
+			"Rev": "67cbc198fd11dab704b214c1e629a97af392c085"
+		},
+		{
+			"ImportPath": "github.com/spf13/viper",
+			"Rev": "db7ff930a189b98d602179d9001d33345f42b8c7"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Rev": "59fc8e570cd707a33a93842b00a9aae4b5cd38b2"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/require",
+			"Rev": "59fc8e570cd707a33a93842b00a9aae4b5cd38b2"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/suite",
+			"Rev": "59fc8e570cd707a33a93842b00a9aae4b5cd38b2"
+		},
+		{
+			"ImportPath": "github.com/vrischmann/envconfig",
+			"Rev": "4650ea1eb6fafc4ae0c008a402c3defcea83766f"
+		},
+		{
+			"ImportPath": "github.com/zalando-techmonkeys/gin-glog",
+			"Rev": "32d578b30825959597e72e829c52211f77254238"
+		},
+		{
+			"ImportPath": "github.com/zalando-techmonkeys/gin-gomonitor",
+			"Comment": "0.1.1",
+			"Rev": "89a7280ca43157836539acd86a539b622576706c"
+		},
+		{
+			"ImportPath": "github.com/zalando-techmonkeys/gin-oauth2",
+			"Comment": "1.0.2-4-gcd2d8c5",
+			"Rev": "cd2d8c5b5ed3873bee42a931d707b83a26492898"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/ssh/terminal",
+			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "b4e17d61b15679caf2335da776c614169a1b4643"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "038cb4adce85ed41e285c2e7cc6221a92bfa44aa"
+		},
+		{
+			"ImportPath": "gopkg.in/bluesuncorp/validator.v5",
+			"Comment": "v5.12",
+			"Rev": "d5acf1dac43705f8bfbb71d878e290e2bed3950b"
+		},
+		{
+			"ImportPath": "gopkg.in/mcuadros/go-monitor.v1",
+			"Comment": "v1.1.0",
+			"Rev": "b46e0cb50c9d4bd193bc1ebed8119f1f0b9a0aff"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "7ad95dd0798a40da1ccdff6dff35fd177b5edf40"
+		}
+	]
+}

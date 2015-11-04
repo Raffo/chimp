@@ -1,0 +1,13 @@
+---
+name: demo
+imageURL: YOUR_IMAGE
+replicas: 3
+ports: 
+  - 8080
+CPULimit: 1
+MemoryLimit: 4000MB
+force: true
+env:
+  MYENVVAR: "test"
+
+
