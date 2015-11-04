@@ -154,3 +154,7 @@ chimp list
 ````
 chimp scale YOUR_APP_NAME NUMBER_OF_REPLICAS
 ````
+
+## License
+
+See [LICENSE](LICENSE) file.
