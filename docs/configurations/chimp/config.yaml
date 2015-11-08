@@ -1,0 +1,7 @@
+---
+server: localhost
+port: 8082
+httpOnly: true
+oauth2Enabled: true
+oauthURL: https://token.auth.zalando.com/access_token
+tokenURL: https://auth.zalando.com/z/oauth2/tokeninfo
