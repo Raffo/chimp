@@ -1,4 +1,6 @@
 # CHIMP
+[![Build Status](https://travis-ci.org/zalando-techmonkeys/chimp.svg?branch=master)](https://travis-ci.org/zalando-techmonkeys/chimp)
+
 Chimp is the front facing component for our cloud solution.
 This project currently contains chimp's server (chimp-server) and our CLI (chimp).
 
