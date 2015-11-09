@@ -105,8 +105,8 @@
 		},
 		{
 			"ImportPath": "github.com/zalando-techmonkeys/gin-oauth2",
-			"Comment": "1.0.2-4-gcd2d8c5",
-			"Rev": "cd2d8c5b5ed3873bee42a931d707b83a26492898"
+			"Comment": "1.1.1-1-g1075905",
+			"Rev": "1075905bf2fa9281ac481ff91c0346cfb4b56939"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/ssh/terminal",
@@ -114,11 +114,11 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "b4e17d61b15679caf2335da776c614169a1b4643"
+			"Rev": "042ba42fa6633b34205efc66ba5719cd3afd8d38"
 		},
 		{
 			"ImportPath": "golang.org/x/oauth2",
-			"Rev": "038cb4adce85ed41e285c2e7cc6221a92bfa44aa"
+			"Rev": "d4780cd8b5fffdab1cc8ef7a4f9050dc37755847"
 		},
 		{
 			"ImportPath": "gopkg.in/bluesuncorp/validator.v5",

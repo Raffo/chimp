@@ -49,7 +49,15 @@ func RequestTeamInfo(tc *ginoauth2.TokenContainer, uri string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func GroupCheck(tc *ginoauth2.TokenContainer, access_tuple []ginoauth2.AccessTuple, ctx *gin.Context) bool {
+type AccessTuple struct {
+	Realm string // p.e. "employees", "services"
+	Uid   string // UnixName
+	Cn    string // RealName
+}
+
+var AccessTuples []AccessTuple
+
+func GroupCheck(tc *ginoauth2.TokenContainer, ctx *gin.Context) bool {
 	blob, err := RequestTeamInfo(tc, TeamAPI)
 	if err != nil {
 		glog.Error("failed to get team info, caused by: ", err)
@@ -62,14 +70,31 @@ func GroupCheck(tc *ginoauth2.TokenContainer, access_tuple []ginoauth2.AccessTup
 		return false
 	}
 	for _, teamInfo := range data {
-		for idx := range access_tuple {
-			at := access_tuple[idx]
+		for idx := range AccessTuples {
+			at := AccessTuples[idx]
 			if teamInfo.Id_name == at.Uid {
 				ctx.Set("uid", tc.Scopes["uid"].(string))
 				ctx.Set("team", teamInfo.Id_name)
 				glog.Infof("Grant access to %s as team member of %s\n", tc.Scopes["uid"].(string), teamInfo.Id_name)
 				return true
 			}
+		}
+	}
+
+	return false
+}
+
+// Authorization function that checks UID scope
+// TokenContainer must be Valid
+// gin.Context gin contex
+func UidCheck(tc *ginoauth2.TokenContainer, ctx *gin.Context) bool {
+	uid := tc.Scopes["uid"].(string)
+	for idx := range AccessTuples {
+		at := AccessTuples[idx]
+		if uid == at.Uid {
+			ctx.Set("uid", uid) //in this way I can set the authorized uid
+			glog.Infof("Grant access to %s\n", uid)
+			return true
 		}
 	}
 

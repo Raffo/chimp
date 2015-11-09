@@ -63,17 +63,17 @@ func (svc *Service) Run(cfg ServerSettings) error {
 	if config.Configuration.Oauth2Enabled {
 		private = router.Group("")
 		if config.Configuration.TeamAuthorization {
-			var accessTuple []ginoauth2.AccessTuple = make([]ginoauth2.AccessTuple, len(config.Configuration.AuthorizedTeams))
+			var accessTuple []zalando.AccessTuple = make([]zalando.AccessTuple, len(config.Configuration.AuthorizedTeams))
 			for i, v := range config.Configuration.AuthorizedTeams {
-				accessTuple[i] = ginoauth2.AccessTuple{Realm: v.Realm, Uid: v.Uid, Cn: v.Cn}
+				accessTuple[i] = zalando.AccessTuple{Realm: v.Realm, Uid: v.Uid, Cn: v.Cn}
 			}
-			private.Use(ginoauth2.Auth(zalando.GroupCheck, oauth2Endpoint, accessTuple))
+			private.Use(ginoauth2.Auth(zalando.GroupCheck, oauth2Endpoint))
 		} else {
-			var accessTuple []ginoauth2.AccessTuple = make([]ginoauth2.AccessTuple, len(config.Configuration.AuthorizedUsers))
+			var accessTuple []zalando.AccessTuple = make([]zalando.AccessTuple, len(config.Configuration.AuthorizedUsers))
 			for i, v := range config.Configuration.AuthorizedUsers {
-				accessTuple[i] = ginoauth2.AccessTuple{Realm: v.Realm, Uid: v.Uid, Cn: v.Cn}
+				accessTuple[i] = zalando.AccessTuple{Realm: v.Realm, Uid: v.Uid, Cn: v.Cn}
 			}
-			private.Use(ginoauth2.Auth(ginoauth2.UidCheck, oauth2Endpoint, accessTuple))
+			private.Use(ginoauth2.Auth(zalando.UidCheck, oauth2Endpoint))
 		}
 	}
 

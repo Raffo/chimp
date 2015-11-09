@@ -9,17 +9,31 @@ import (
 	"github.com/zalando-techmonkeys/gin-glog"
 	"github.com/zalando-techmonkeys/gin-oauth2"
 	"github.com/zalando-techmonkeys/gin-oauth2/zalando"
+	"golang.org/x/oauth2"
 )
 
-//var USERS []ginoauth2.AccessTuple = []ginoauth2.AccessTuple{{"employees", "njuettner", "Nick Jüttner"}}
-var USERS []ginoauth2.AccessTuple = []ginoauth2.AccessTuple{{"employees", "sszuecs", "Sandor Szücs"}, {"employees", "njuettner", "Nick Jüttner"}}
+var OAuth2Endpoint = oauth2.Endpoint{
+	AuthURL:  "https://token.auth.zalando.com/access_token",
+	TokenURL: "https://auth.zalando.com/z/oauth2/tokeninfo",
+}
+
+type AccessTuple struct {
+	Realm string // p.e. "employees", "services"
+	Uid   string // UnixName
+	Cn    string // RealName
+}
+
+var USERS []AccessTuple = []AccessTuple{
+	{"employees", "sszuecs", "Sandor Szücs"},
+	{"employees", "njuettner", "Nick Jüttner"},
+}
 
 func main() {
-
+	zalando.AccessTuples = []zalando.AccessTuple{{"teams", "Techmonkeys", "Platform Engineering / System"}}
 	flag.Parse()
 	router := gin.New()
 	router.Use(ginglog.Logger(3 * time.Second))
-	router.Use(ginoauth2.RequestLogger("uid", "data"))
+	router.Use(ginoauth2.RequestLogger([]string{"uid"}, "data"))
 	router.Use(gin.Recovery())
 
 	public := router.Group("/api")
@@ -28,9 +42,15 @@ func main() {
 	})
 
 	private := router.Group("/api/private")
-	private.Use(ginoauth2.Auth(ginoauth2.UidCheck, zalando.OAuth2Endpoint, USERS))
+	privateUser := router.Group("/api/privateUser")
+	glog.Infof("Register allowed users: %+v and groups: %+v", USERS, zalando.AccessTuples)
+	private.Use(ginoauth2.Auth(zalando.GroupCheck, zalando.OAuth2Endpoint))
+	privateUser.Use(ginoauth2.Auth(zalando.UidCheck, zalando.OAuth2Endpoint))
 	private.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "Hello from private"})
+		c.JSON(200, gin.H{"message": "Hello from private for groups"})
+	})
+	privateUser.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "Hello from private for users"})
 	})
 
 	glog.Info("bootstrapped application")
