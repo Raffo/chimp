@@ -145,7 +145,7 @@ chimp info YOUR_APP_NAME
 ````
 
 ### List
-Lists all the applications for your team (when OAuth2 is on). Has a ```--all``` option that can be used to get the full list of every application
+Lists all the applications for your team (when OAuth2 is on). It has a ```--all``` option that can be used to get the full list of every application
 ````
 chimp list
 ````
