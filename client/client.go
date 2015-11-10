@@ -46,7 +46,7 @@ func (bc *Client) RenewAccessToken(username string) {
 		fmt.Printf("ERR: Could not parse given Auth URL: %s\n", bc.OAuth2Endpoint.AuthURL)
 		os.Exit(1)
 	}
-	auth_url_str := fmt.Sprintf("%s://%s%s%s%s", bc.Scheme, u.Host, u.Path, u.RawQuery, u.Fragment)
+	auth_url_str := fmt.Sprintf("https://%s%s%s%s", u.Host, u.Path, u.RawQuery, u.Fragment)
 	fmt.Printf("Try to get Token using URL: %s\n", auth_url_str)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", auth_url_str, nil)
@@ -180,7 +180,7 @@ func (bc *Client) InfoDeploy(name string, verbose bool) {
 func (bc *Client) ListDeploy(all bool) {
 	var query map[string]string = nil
 	if all {
-		query =  map[string]string{"all": "true"}
+		query = map[string]string{"all": "true"}
 	}
 	url := bc.buildDeploymentURL("", query)
 	_, res, err := bc.makeRequest("GET", url, nil)
