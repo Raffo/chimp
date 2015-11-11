@@ -331,12 +331,14 @@ func printInfoTable(verbose bool, artifact Artifact) {
 	if verbose {
 		containerTable := printer.NewWriter(os.Stdout)
 		containerTable.SetRowLine(true)
-		containerTable.SetHeader([]string{"Container Status", "Image", "Endpoint"})
+		containerTable.SetHeader([]string{"Container Status", "Image", "Endpoint", "Logfile"})
 		for _, replica := range artifact.RunningReplicas {
 			cRow := []string{}
 			cRow = append(cRow, replica.Containers[0].Status)
 			cRow = append(cRow, replica.Containers[0].ImageURL)
 			cRow = append(cRow, replica.Endpoints[0])
+			cRow = append(cRow, replica.Containers[0].LogInfo["containerName"])
+			cRow = append(cRow)
 			containerTable.Append(cRow)
 		}
 		containerTable.Render()
@@ -364,4 +366,48 @@ func printInfoTable(verbose bool, artifact Artifact) {
 		labelsTable.Render()
 	}
 
+}
+
+func printLogs(artifact Artifact) {
+	containerTable := printer.NewWriter(os.Stdout)
+	containerTable.SetRowLine(false)
+	containerTable.SetRowLine(false)
+	containerTable.SetBorder(false)
+	containerTable.SetHeader([]string{"Endpoint", "Log URL"})
+	for _, replica := range artifact.RunningReplicas {
+		cRow := []string{}
+		cRow = append(cRow, replica.Endpoints[0])
+		cRow = append(cRow, replica.Containers[0].LogInfo["remoteURL"])
+		cRow = append(cRow)
+		containerTable.Append(cRow)
+	}
+	containerTable.Render()
+
+}
+
+func (bc *Client) LogInfo(name string) {
+	url := bc.buildDeploymentURL(name, nil)
+	_, res, err := bc.makeRequest("GET", url, nil)
+	if err != nil {
+		fmt.Println(errorMessageBuilder("Cannot get logs for deploy", err))
+		return
+	}
+
+	if checkStatusOK(res.StatusCode) {
+		if checkAuthOK(res.StatusCode) {
+			if res.StatusCode >= 400 && res.StatusCode <= 499 {
+				e := Error{}
+				unmarshalResponse(res, &e)
+				fmt.Printf("Cannot get info for deployment: %s\n", e.Err)
+			} else {
+				artifact := Artifact{}
+				unmarshalResponse(res, &artifact)
+				printLogs(artifact)
+			}
+		} else {
+			handleAuthNOK(res.StatusCode)
+		}
+	} else {
+		handleStatusNOK(res.StatusCode)
+	}
 }

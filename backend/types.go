@@ -12,8 +12,8 @@ type UpdateRequest struct {
 type BaseRequest struct {
 	Name        string            // "shop"
 	Ports       []int             // [8080]
-	Labels      map[string]string // ["env": "live", "insatnce": "shop"]
-	ImageURL    string            
+	Labels      map[string]string // ["env": "live", "instance": "shop"]
+	ImageURL    string
 	Env         map[string]string // {"FOO": "bar", ..}
 	Replicas    int               // 4, creates 4 given container
 	CPULimit    int
@@ -36,7 +36,7 @@ const (
 type ArtifactRequest struct {
 	Action int // DELETE, MONITOR, ..
 	Name   string
-	Labels map[string]string // ["env": "live", "insatnce": "shop"]
+	Labels map[string]string // ["env": "live", "instance": "shop"]
 }
 
 type Replica struct {
@@ -66,9 +66,10 @@ type PortType struct {
 
 //Labels will probably be there, eventually. Makes particularly sense kubernetes, not for marathon
 type Container struct {
-	ImageURL string      `json:"imageURL"`
-	Ports    []*PortType `json:"ports"`
-	Status   string      `json:"status"`
+	ImageURL string            `json:"imageURL"`
+	Ports    []*PortType       `json:"ports"`
+	Status   string            `json:"status"`
+	LogInfo  map[string]string `json:"loginfo"`
 }
 
 type ListDeployments []string

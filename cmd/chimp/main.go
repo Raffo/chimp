@@ -45,6 +45,7 @@ func main() {
   chimp info (<name>) [options]
   chimp list [--all] [options]
   chimp login (<username>) [options]
+  chimp log (<name>) [options]
 
 
 Options:
@@ -108,6 +109,9 @@ Options:
 		cli.Scale(name, replicas)
 	} else if arguments["login"].(bool) {
 		cli.RenewAccessToken(strings.TrimSpace(username))
+	} else if arguments["log"].(bool) {
+		cli.GetAccessToken(username)
+		cli.LogInfo(name)
 	}
 }
 

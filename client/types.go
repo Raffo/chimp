@@ -39,9 +39,10 @@ type PortType struct {
 
 //Labels will probably be there, eventually. Makes particularly sense kubernetes, not for marathon
 type Container struct {
-	ImageURL string      `json:"imageURL"`
-	Ports    []*PortType `json:"ports"`
-	Status   string      `json:"status"`
+	ImageURL string            `json:"imageURL"`
+	Ports    []*PortType       `json:"ports"`
+	Status   string            `json:"status"`
+	LogInfo  map[string]string `json:"loginfo"`
 }
 
 type Error struct {
