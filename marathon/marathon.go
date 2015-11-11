@@ -1,9 +1,12 @@
 package marathon
 
 import (
+	"encoding/json"
 	"fmt"
-	"strings"
+	"io/ioutil"
+	"net/http"
 	"net/url"
+	"strings"
 
 	marathon "github.com/gambol99/go-marathon"
 	"github.com/golang/glog"
@@ -83,13 +86,18 @@ func (mb MarathonBackend) GetApp(req *backend.ArtifactRequest) (*backend.Artifac
 				application.LastTaskFailure.Message, application.LastTaskFailure.Timestamp)
 		}
 	}
+	var endpoints []string = make([]string, 0, len(application.Tasks))
 
-	tasks := make([]*Task, 0, len(application.Tasks))
-
-	for _, task := range application.Tasks {
+	//transforming the data coming from kubernetes into chimp structure
+	replicas := make([]*backend.Replica, 0, len(application.Tasks))
+	for _, replica := range application.Tasks {
+		//copying container data structure
+		containers := make([]*backend.Container, 0, 1)
+		//logURL := getLogUrl(replica.Host, replica.Name)
+		fmt.Println(replica)
 		status := true
 		statString := "OK"
-		for _, hc := range task.HealthCheckResult {
+		for _, hc := range replica.HealthCheckResult {
 			if hc.Alive == false {
 				status = false
 			}
@@ -97,28 +105,32 @@ func (mb MarathonBackend) GetApp(req *backend.ArtifactRequest) (*backend.Artifac
 		if !status {
 			statString = "NOT ALIVE"
 		}
-		tasks = append(tasks, &Task{Name: task.AppID, Host: task.Host, Ports: task.Ports, Status: statString}) //TODO: also include protocol information with port
-	}
 
-	var endpoints []string = make([]string, 0, len(tasks))
+		containerName, err := buildContainerName(replica.Host, replica.ID)
+		logInfo := map[string]string{}
+		if err == nil { //If the URL cannot be build I don't want to encounter any other problem
+			remoteURL := "https://www.scalyr.com/events?mode=log&filter=$logfile%3D%27%2Ffluentd%2F%2F" + containerName + "%27%20$serverHost%3D%27" + strings.Split(replica.Host, ".")[0] + "%27"
+			logInfo = map[string]string{"containerName": containerName, "remoteURL": remoteURL}
+		}
 
-	//transforming the data coming from kubernetes into chimp structure
-	replicas := make([]*backend.Replica, 0, len(tasks))
-	for _, replica := range tasks {
-		//copying container data structure
-		containers := make([]*backend.Container, 0, 1)
-		containers = append(containers, &backend.Container{ImageURL: application.Container.Docker.Image, Status: replica.Status})
+		container := backend.Container{
+			ImageURL: application.Container.Docker.Image,
+			Status:   statString,
+			LogInfo:  logInfo,
+		}
+		containers = append(containers, &container)
 
-		//TODO translating between type, good for decoupling, must be removed!
 		ports := make([]*backend.PortType, 0, len(replica.Ports))
 		for _, port := range replica.Ports {
 			ports = append(ports, &backend.PortType{Port: port, Protocol: ""})
 		}
 		endpoints = append(endpoints, fmt.Sprintf("http://%s:%s/", replica.Host, intslice2str(replica.Ports, "")))
-		replica := backend.Replica{Status: replica.Status, Containers: containers, Endpoints: endpoints, Ports: ports} //HACK, this shouldn't be added only one time
+		replica := backend.Replica{Status: statString, Containers: containers, Endpoints: endpoints, Ports: ports} //HACK, this shouldn't be added only one time
 		endpoints = nil
 		replicas = append(replicas, &replica)
 	}
+
+	//builds the log information
 
 	artifact := backend.Artifact{
 		Name:              application.ID,
@@ -164,6 +176,7 @@ func (mb MarathonBackend) Deploy(cr *backend.CreateRequest) (string, error) {
 	if conf.New().FluentdEnabled {
 		app.Container.Docker.Parameter("log-driver", "fluentd")
 		app.Container.Docker.Parameter("log-opt", "\"fluentd-address=localhost:24224\"")
+		app.Container.Docker.Parameter("log-opt", "\"fluentd-tag={{.Name}}\"")
 	}
 	app.Labels = labels
 
@@ -256,4 +269,58 @@ func intslice2str(ary []int, sep string) string {
 		str += fmt.Sprintf("%d%s", value, sep)
 	}
 	return str
+}
+
+//this is a definitely not an elegant way of composing the ContainerName, but this information is currently not
+//available anywhere else. This MUST be removed or refactored as soon as https://issues.apache.org/jira/browse/MESOS-3688
+//is completed and the same information exposed via marathon.
+//NOTE: this function ca be further improved as there are many hardcoded infos.
+func buildContainerName(host string, ID string) (string, error) {
+	containerName := ""
+	slaveID := ""
+	//call the mesos host (slave) to get the state.json
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s://%s:5051/state.json", "http", host), nil)
+	if err != nil {
+		return "", err
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	//parse the state.json to get from "frameworks->execturos->" the entry with id == ID
+	var mj interface{}
+	err = json.Unmarshal(body, &mj)
+	if err != nil {
+		return "", err
+	}
+	data := mj.(map[string]interface{})
+	frameworks := data["frameworks"]
+	for _, framework := range frameworks.([]interface{}) {
+		//check if we are really looking at marathon data as there could be many mesos frameworks
+		f := framework.(map[string]interface{})
+		if f["name"] == "marathon" {
+			executors := f["executors"].([]interface{})
+			//iterate on tasks
+			for _, executor := range executors {
+				exec := executor.(map[string]interface{})
+				if exec["id"].(string) == ID { //this is the map we need
+					//read field "container" from the entry
+					containerName = exec["container"].(string)
+					//getting slave ID
+					tasks := exec["tasks"].([]interface{})
+					task := tasks[0].(map[string]interface{})
+					slaveID = task["slave_id"].(string)
+				}
+
+			}
+		}
+	}
+	//build and return the string
+	return fmt.Sprintf("mesos-%s.%s", slaveID, containerName), nil
 }

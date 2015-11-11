@@ -11,7 +11,7 @@ var m *MarathonBackend
 
 func Test_GetAppNames(t *testing.T) {
 	m = New()
-	apps, err := m.GetAppNames()
+	apps, err := m.GetAppNames(map[string]string{})
 	if err != nil {
 		t.Errorf("%s", err.Error())
 		t.FailNow()
