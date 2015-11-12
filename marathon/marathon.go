@@ -93,8 +93,6 @@ func (mb MarathonBackend) GetApp(req *backend.ArtifactRequest) (*backend.Artifac
 	for _, replica := range application.Tasks {
 		//copying container data structure
 		containers := make([]*backend.Container, 0, 1)
-		//logURL := getLogUrl(replica.Host, replica.Name)
-		fmt.Println(replica)
 		status := true
 		statString := "OK"
 		for _, hc := range replica.HealthCheckResult {
@@ -314,8 +312,10 @@ func buildContainerName(host string, ID string) (string, error) {
 					containerName = exec["container"].(string)
 					//getting slave ID
 					tasks := exec["tasks"].([]interface{})
-					task := tasks[0].(map[string]interface{})
-					slaveID = task["slave_id"].(string)
+					if len(tasks) > 0 {
+						task := tasks[0].(map[string]interface{})
+						slaveID = task["slave_id"].(string)
+					}
 				}
 
 			}
