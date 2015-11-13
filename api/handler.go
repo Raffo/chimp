@@ -47,6 +47,8 @@ func Start() {
 		se.Backend = marathon.New()
 	case "mock":
 		se.Backend = mock.New()
+	case "default":
+		se.Backend = mock.New()
 	}
 }
 
@@ -63,13 +65,17 @@ func rootHandler(ginCtx *gin.Context) {
 	ginCtx.JSON(http.StatusOK, gin.H{"chimp-server": fmt.Sprintf("Build Time: %s - Git Commit Hash: %s", config.VersionBuildStamp, config.VersionGitHash)})
 }
 
+func healthHandler(ginCtx *gin.Context) {
+	ginCtx.String(http.StatusOK, "OK")
+}
+
 //deployList is used to get a list of all the running application
 func deployList(ginCtx *gin.Context) {
 	team, uid := buildTeamLabel(ginCtx)
 	all := ginCtx.Query("all")
 	var filter map[string]string = nil
 	if all == "" {
- 		filter = make(map[string]string, 2)
+		filter = make(map[string]string, 2)
 		filter["uid"] = uid
 		filter["team"] = team
 	}

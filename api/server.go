@@ -67,6 +67,7 @@ func (svc *Service) Run(cfg ServerSettings) error {
 			for i, v := range config.Configuration.AuthorizedTeams {
 				accessTuple[i] = zalando.AccessTuple{Realm: v.Realm, Uid: v.Uid, Cn: v.Cn}
 			}
+			zalando.AccessTuples = accessTuple
 			private.Use(ginoauth2.Auth(zalando.GroupCheck, oauth2Endpoint))
 		} else {
 			var accessTuple []zalando.AccessTuple = make([]zalando.AccessTuple, len(config.Configuration.AuthorizedUsers))
@@ -79,6 +80,7 @@ func (svc *Service) Run(cfg ServerSettings) error {
 
 	//non authenticated routes
 	router.GET("/", rootHandler)
+	router.GET("/health", healthHandler)
 	//authenticated routes
 	if config.Configuration.Oauth2Enabled {
 		private.GET("/deployments", deployList)

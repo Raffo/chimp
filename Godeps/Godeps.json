@@ -55,12 +55,8 @@
 			"Rev": "281073eb9eb092240d33ef253c404f1cca550309"
 		},
 		{
-			"ImportPath": "github.com/nu7hatch/gouuid",
-			"Rev": "179d4d0c4d8d407a32af483c2354df1d2c91e6c3"
-		},
-		{
 			"ImportPath": "github.com/olekukonko/tablewriter",
-			"Rev": "bc39950e081b457853031334b3c8b95cdfe428ba"
+			"Rev": "a5eefc286b03d5560735698ef36c83728a6ae560"
 		},
 		{
 			"ImportPath": "github.com/spf13/cast",
@@ -83,14 +79,6 @@
 			"Rev": "59fc8e570cd707a33a93842b00a9aae4b5cd38b2"
 		},
 		{
-			"ImportPath": "github.com/stretchr/testify/require",
-			"Rev": "59fc8e570cd707a33a93842b00a9aae4b5cd38b2"
-		},
-		{
-			"ImportPath": "github.com/stretchr/testify/suite",
-			"Rev": "59fc8e570cd707a33a93842b00a9aae4b5cd38b2"
-		},
-		{
 			"ImportPath": "github.com/vrischmann/envconfig",
 			"Rev": "4650ea1eb6fafc4ae0c008a402c3defcea83766f"
 		},
@@ -105,8 +93,8 @@
 		},
 		{
 			"ImportPath": "github.com/zalando-techmonkeys/gin-oauth2",
-			"Comment": "1.1.1-1-g1075905",
-			"Rev": "1075905bf2fa9281ac481ff91c0346cfb4b56939"
+			"Comment": "1.1.1-2-g138c264",
+			"Rev": "138c264b48fb736bca3e1e0836f0287f12e81f42"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/ssh/terminal",

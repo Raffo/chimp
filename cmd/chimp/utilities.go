@@ -46,7 +46,6 @@ func GetBoolFromArgs(arguments map[string]interface{}, name string, _default boo
 	return GetBoolFromStr(val_str)
 }
 
-//TODO should we make the env variables support better?
 func ConvertMaps(input string) map[string]string {
 	var labels map[string]string = make(map[string]string)
 	if input != "" {

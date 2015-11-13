@@ -53,27 +53,6 @@ func encodeEntity(entity interface{}) (io.Reader, error) {
 	}
 }
 
-type InfoMessage struct {
-	Info []Artifact `json:"data"`
-}
-
-type ListMessage struct {
-	List []string `json:"data"`
-}
-
-//object at go level
-type ChimpInfoResponse struct {
-	Title  string
-	Detail string
-	Data   []Artifact
-}
-
-type ChimpListResponse struct {
-	Title  string
-	Detail string
-	Data   []string
-}
-
 func unmarshalResponse(r *http.Response, data interface{}) error {
 	respBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -117,6 +96,8 @@ func handleStatusNOK(status int) {
 	switch status {
 	case 500:
 		fmt.Println("Internal error.")
+	case 503:
+		fmt.Println("Service unavailable, please check your config.")
 	default:
 		fmt.Println("Generic error.")
 	}
