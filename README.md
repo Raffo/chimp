@@ -4,6 +4,10 @@
 Chimp is the front facing component for our cloud solution.
 This project currently contains chimp's server (chimp-server) and our CLI (chimp).
 
+## Project Status
+The project is still in active development and we could introduce breaking changes. The master branch is still to be considered as "stable" and most breaking changes will be developed in short lived branches. 
+NOTE: In the kurrent version, the kubernetes support is not working.
+
 ## CHIMP Server
 
 
