@@ -220,15 +220,25 @@ func commonDeploy(ginCtx *gin.Context) (DeployRequest, error) {
 //marathon. I (rdifazio) really believe this a limitation in terms  of expressibite, but we keep it
 //simple for now.
 func mapMemory(memory string) (int, error) {
-	re, err := regexp.Compile(`^([0-9]*)(MB){0,1}$`)
+	re, err := regexp.Compile(`^([0-9]*)(MB|GB){0,1}$`)
 	if err != nil {
 		return 0, err
 	}
 	res := re.FindStringSubmatch(memory)
 	if len(res) == 0 {
 		return 0, errors.New("Memory formatting is wrong")
+	} else if res[2] == "" { //user didn't specify the size, assuming
+		return strconv.Atoi(res[1])
+	} else {
+		val, err := strconv.Atoi(res[1])
+		if res[2] == "GB" {
+			return val * 1000, err
+		} else if res[2] == "MB" {
+			return val, err
+		} else {
+			return 0, errors.New("Memory formatting is wrong")
+		}
 	}
-	return strconv.Atoi(res[1])
 }
 
 func buildTeamLabel(ginCtx *gin.Context) (string, string) {

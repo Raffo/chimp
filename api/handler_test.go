@@ -17,18 +17,29 @@ func TestMapMemory(t *testing.T) {
 	expected := 2048
 	val, err := mapMemory("2048MB")
 	if err != nil {
+		fmt.Printf(err.Error())
 		t.FailNow()
 	}
 	if val != expected {
-		fmt.Println("Expected: " + string(expected) + ", got: " + string(val))
+		fmt.Printf("Expected: %v, got: %v\n", expected, val)
 		t.FailNow()
 	}
 	val, err = mapMemory("2048")
 	if err != nil {
+		fmt.Printf(err.Error())
 		t.FailNow()
 	}
 	if val != expected {
-		fmt.Println("Expected: " + string(expected) + ", got: " + string(val))
+		fmt.Printf("Expected: %v, got: %v\n", expected, val)
+		t.FailNow()
+	}
+	val, err = mapMemory("2GB")
+	if err != nil {
+		fmt.Printf(err.Error())
+		t.FailNow()
+	}
+	if val != 2000 {
+		fmt.Printf("Expected: %v, got: %v\n", 2000, val)
 		t.FailNow()
 	}
 }

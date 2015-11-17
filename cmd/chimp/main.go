@@ -38,8 +38,8 @@ func main() {
 	usage := fmt.Sprintf(`Usage:
   chimp -h | --help
   chimp --version
-  chimp create (--file=<filename> | <name> <url> --port=<svcport> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
-  chimp update (--file=<filename> | <name> <url> --port=<svcport> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
+  chimp create (<filename> | <name> <url> --port=<svcport> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
+  chimp update (<filename> | <name> <url> --port=<svcport> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
   chimp scale (<name>) (<replicas>) [options]
   chimp delete (<name>) [options]
   chimp info (<name>) [options]
@@ -168,7 +168,7 @@ func createClient(arguments map[string]interface{}) client.Client {
 func buildRequest(arguments map[string]interface{}) (*client.CmdClientRequest, error) {
 	//reading configuration file
 	var c client.CmdClientRequest
-	fileName := GetStringFromArgs(arguments, "--file", "")
+	fileName := GetStringFromArgs(arguments, "<filename>", "")
 	if fileName != "" {
 		viper := viper.New()
 		viper.SetConfigFile(fileName)

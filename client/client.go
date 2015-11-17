@@ -48,7 +48,7 @@ func (bc *Client) RenewAccessToken(username string) {
 		os.Exit(1)
 	}
 	auth_url_str := fmt.Sprintf("https://%s%s%s%s", u.Host, u.Path, u.RawQuery, u.Fragment)
-	fmt.Printf("Try to get Token using URL: %s\n", auth_url_str)
+	fmt.Printf("Getting token from URL: %s\n", auth_url_str)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", auth_url_str, nil)
 	req.SetBasicAuth(username, password)
@@ -67,7 +67,7 @@ func (bc *Client) RenewAccessToken(username string) {
 
 	if len(respBody) > 0 && res.StatusCode == 200 {
 		bc.AccessToken = string(respBody)
-		fmt.Printf("Got AccessToken: %s\n", bc.AccessToken)
+		fmt.Printf("SUCCESS. Your access token is stored in .chimp-token in your home directory.\n")
 		//store token to file
 		var homeDir string
 		for _, home := range homeDirectories {
