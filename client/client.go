@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/user"
 	"path"
 	"strconv"
 	"strings"
@@ -26,6 +25,8 @@ type Client struct {
 	OAuth2Endpoint oauth2.Endpoint
 	Scheme         string
 }
+
+var homeDirectories = []string{"HOME", "USERPROFILES"}
 
 func (bc *Client) RenewAccessToken(username string) {
 	if username == "" {
@@ -68,12 +69,12 @@ func (bc *Client) RenewAccessToken(username string) {
 		bc.AccessToken = string(respBody)
 		fmt.Printf("Got AccessToken: %s\n", bc.AccessToken)
 		//store token to file
-		usr, err := user.Current()
-		if err != nil {
-			fmt.Printf("ERR: can't read your home folder")
-			os.Exit(1)
+		var homeDir string
+		for _, home := range homeDirectories {
+			if dir := os.Getenv(home); dir != "" {
+				homeDir = dir
+			}
 		}
-		homeDir := usr.HomeDir
 		tokenFileName := fmt.Sprintf("%s/%s", homeDir, ".chimp-token")
 		f, _ := os.Create(tokenFileName)
 		_, _ = f.WriteString(strings.TrimSpace(bc.AccessToken)) //not important if doens't work, we'll try again next time
@@ -86,12 +87,12 @@ func (bc *Client) RenewAccessToken(username string) {
 func (bc *Client) GetAccessToken(username string) {
 	if bc.Oauth2Enabled {
 		//before trying to get the token I try to read the old one
-		usr, err := user.Current()
-		if err != nil {
-			fmt.Printf("ERR: can't read your home folder")
-			os.Exit(1)
+		var homeDir string
+		for _, home := range homeDirectories {
+			if dir := os.Getenv(home); dir != "" {
+				homeDir = dir
+			}
 		}
-		homeDir := usr.HomeDir
 		tokenFileName := fmt.Sprintf("%s/%s", homeDir, ".chimp-token")
 		data, err := ioutil.ReadFile(tokenFileName)
 		var oldToken string
