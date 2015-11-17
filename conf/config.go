@@ -51,13 +51,13 @@ func New() *Config {
 		conf, err = configInit("config.yaml")
 		if err != nil {
 			glog.Errorf("could not load configuration. Reason: %s", err.Message)
-			panic("Cannot load configuration. Exiting.")
 		}
 	}
 	return conf
 }
 
 func configInit(filename string) (*Config, *ConfigError) {
+	var config Config
 	viper := viper.New()
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("config")
@@ -66,13 +66,12 @@ func configInit(filename string) (*Config, *ConfigError) {
 	err := viper.ReadInConfig()
 	if err != nil {
 		fmt.Printf("Can not read config, caused by: %s", err)
-		return nil, &ConfigError{"configuration format is not correct."}
+		return &config, &ConfigError{"configuration format is not correct."}
 	}
-	var config Config
 	err = viper.Marshal(&config)
 	if err != nil {
 		fmt.Printf("Can not marshal config, caused by: %s", err)
-		return nil, &ConfigError{"cannot read configuration, something must be wrong."}
+		return &config, &ConfigError{"cannot read configuration, something must be wrong."}
 	}
 	return &config, nil
 }

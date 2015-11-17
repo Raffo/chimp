@@ -1,10 +1,13 @@
+// +build integration
+
 package marathon
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/zalando-techmonkeys/chimp/backend"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/zalando-techmonkeys/chimp/backend"
 )
 
 var m *MarathonBackend
