@@ -110,6 +110,9 @@ func (bc *Client) buildDeploymentURL(name string, params map[string]string) stri
 	u := new(url.URL)
 	u.Scheme = bc.Scheme
 	u.Host = net.JoinHostPort(bc.Host, strconv.Itoa(bc.Port))
+	if bc.Scheme == "https" && bc.Port == 443 {
+		u.Host = bc.Host
+	}
 	u.Path = path.Join("/deployments", name)
 	q := u.Query()
 	for k := range params {
@@ -123,6 +126,9 @@ func (bc *Client) buildDeploymentReplicasURL(name string, replicas int) string {
 	u := new(url.URL)
 	u.Scheme = bc.Scheme
 	u.Host = net.JoinHostPort(bc.Host, strconv.Itoa(bc.Port))
+	if bc.Scheme == "https" && bc.Port == 443 {
+		u.Host = bc.Host
+	}
 	u.Path = path.Join("/deployments", name, "replicas", strconv.Itoa(replicas))
 	return u.String()
 }
