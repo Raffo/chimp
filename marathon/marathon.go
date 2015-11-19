@@ -28,7 +28,8 @@ func New() *MarathonBackend {
 // DOCKERCFG to access private docker repo to pull docker images
 // MARATHONURL to access mesos/marathon cluster
 const (
-	DOCKERCFG string = "file:///root/.dockercfg"
+	DOCKERCFG     string = "file:///root/.dockercfg"
+	DOCKERVERSION string = "1.9"
 )
 
 // getMarathonClient connects to mesos cluster
@@ -174,7 +175,13 @@ func (mb MarathonBackend) Deploy(cr *backend.CreateRequest) (string, error) {
 	if conf.New().FluentdEnabled {
 		app.Container.Docker.Parameter("log-driver", "fluentd")
 		app.Container.Docker.Parameter("log-opt", "\"fluentd-address=localhost:24224\"")
-		app.Container.Docker.Parameter("log-opt", "\"fluentd-tag={{.Name}}\"")
+		if DOCKERVERSION == "1.9" {
+			//this is unsupported if docker < 1.9
+			app.Container.Docker.Parameter("log-opt", "\"tag={{.ImageName}}/{{.Name}}\"")
+		} else {
+			app.Container.Docker.Parameter("log-opt", "\"fluentd-tag={{.Name}}\"")
+		}
+
 	}
 	app.Labels = labels
 
