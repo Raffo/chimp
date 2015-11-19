@@ -28,7 +28,7 @@ type ServerSettings struct {
 // global data, p.e. Debug
 var config ServerSettings
 
-func dummyAuthorization(tc *ginoauth2.TokenContainer, ctx *gin.Context) bool {
+func noAuthorization(tc *ginoauth2.TokenContainer, ctx *gin.Context) bool {
 	return true
 }
 
@@ -80,7 +80,7 @@ func (svc *Service) Run(cfg ServerSettings) error {
 			}
 			private.Use(ginoauth2.Auth(zalando.UidCheck, oauth2Endpoint))
 		} else { //NO_AUTH
-			private.Use(ginoauth2.Auth(dummyAuthorization, oauth2Endpoint))
+			private.Use(ginoauth2.Auth(noAuthorization, oauth2Endpoint))
 		}
 	}
 
