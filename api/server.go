@@ -66,14 +66,14 @@ func (svc *Service) Run(cfg ServerSettings) error {
 	//ATM team or user auth is mutually exclusive, we have to look for a better solution
 	if config.Configuration.Oauth2Enabled {
 		private = router.Group("")
-		if config.Configuration.TeamAuthorization == conf.TEAM_AUTH {
+		if config.Configuration.AuthorizationType == conf.TEAM_AUTH {
 			var accessTuple []zalando.AccessTuple = make([]zalando.AccessTuple, len(config.Configuration.AuthorizedTeams))
 			for i, v := range config.Configuration.AuthorizedTeams {
 				accessTuple[i] = zalando.AccessTuple{Realm: v.Realm, Uid: v.Uid, Cn: v.Cn}
 			}
 			zalando.AccessTuples = accessTuple
 			private.Use(ginoauth2.Auth(zalando.GroupCheck, oauth2Endpoint))
-		} else if config.Configuration.TeamAuthorization == conf.INDIVIDUAL_AUTH {
+		} else if config.Configuration.AuthorizationType == conf.INDIVIDUAL_AUTH {
 			var accessTuple []zalando.AccessTuple = make([]zalando.AccessTuple, len(config.Configuration.AuthorizedUsers))
 			for i, v := range config.Configuration.AuthorizedUsers {
 				accessTuple[i] = zalando.AccessTuple{Realm: v.Realm, Uid: v.Uid, Cn: v.Cn}

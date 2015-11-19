@@ -24,7 +24,7 @@ type Config struct {
 	FluentdEnabled    bool   //true if fluentd is enabled, will be ON for each container
 	DebugEnabled      bool
 	Oauth2Enabled     bool //true if authentication is enabled
-	TeamAuthorization int
+	AuthorizationType int
 	AuthURL           string
 	TokenURL          string
 	TlsCertfilePath   string
