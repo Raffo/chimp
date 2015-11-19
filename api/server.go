@@ -28,6 +28,10 @@ type ServerSettings struct {
 // global data, p.e. Debug
 var config ServerSettings
 
+func dummyAuthorization(tc *ginoauth2.TokenContainer, ctx *gin.Context) bool {
+	return true
+}
+
 // Main Service Struct
 type Service struct{}
 
@@ -62,19 +66,21 @@ func (svc *Service) Run(cfg ServerSettings) error {
 	//ATM team or user auth is mutually exclusive, we have to look for a better solution
 	if config.Configuration.Oauth2Enabled {
 		private = router.Group("")
-		if config.Configuration.TeamAuthorization {
+		if config.Configuration.TeamAuthorization == conf.TEAM_AUTH {
 			var accessTuple []zalando.AccessTuple = make([]zalando.AccessTuple, len(config.Configuration.AuthorizedTeams))
 			for i, v := range config.Configuration.AuthorizedTeams {
 				accessTuple[i] = zalando.AccessTuple{Realm: v.Realm, Uid: v.Uid, Cn: v.Cn}
 			}
 			zalando.AccessTuples = accessTuple
 			private.Use(ginoauth2.Auth(zalando.GroupCheck, oauth2Endpoint))
-		} else {
+		} else if config.Configuration.TeamAuthorization == conf.INDIVIDUAL_AUTH {
 			var accessTuple []zalando.AccessTuple = make([]zalando.AccessTuple, len(config.Configuration.AuthorizedUsers))
 			for i, v := range config.Configuration.AuthorizedUsers {
 				accessTuple[i] = zalando.AccessTuple{Realm: v.Realm, Uid: v.Uid, Cn: v.Cn}
 			}
 			private.Use(ginoauth2.Auth(zalando.UidCheck, oauth2Endpoint))
+		} else { //NO_AUTH
+			private.Use(ginoauth2.Auth(dummyAuthorization, oauth2Endpoint))
 		}
 	}
 

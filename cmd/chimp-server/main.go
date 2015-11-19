@@ -41,7 +41,7 @@ Example:
 	//the values will be overwritten by command line flags
 	flag.BoolVar(&serverConfig.DebugEnabled, "debug", serverConfig.DebugEnabled, "Enable debug output")
 	flag.BoolVar(&serverConfig.Oauth2Enabled, "oauth", serverConfig.Oauth2Enabled, "Enable OAuth2")
-	flag.BoolVar(&serverConfig.TeamAuthorization, "team-auth", serverConfig.TeamAuthorization, "Enable team based authorization")
+	flag.IntVar(&serverConfig.TeamAuthorization, "team-auth", serverConfig.TeamAuthorization, "Enable team based authorization")
 	flag.StringVar(&serverConfig.AuthURL, "oauth-authurl", serverConfig.AuthURL, "OAuth2 Auth URL")
 	flag.StringVar(&serverConfig.TokenURL, "oauth-tokeninfourl", serverConfig.TokenURL, "OAuth2 Auth URL")
 	flag.StringVar(&serverConfig.TlsCertfilePath, "tls-cert", serverConfig.TlsCertfilePath, "TLS Certfile")

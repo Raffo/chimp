@@ -11,13 +11,20 @@ import (
 	"github.com/spf13/viper"
 )
 
+//constants for authorization
+const (
+	NO_AUTH         = iota //0
+	INDIVIDUAL_AUTH        //1
+	TEAM_AUTH              //2
+)
+
 type Config struct {
 	BackendType       string //"marathon" or "kubernetes"
 	Endpoint          string //URL of the backend
 	FluentdEnabled    bool   //true if fluentd is enabled, will be ON for each container
 	DebugEnabled      bool
 	Oauth2Enabled     bool //true if authentication is enabled
-	TeamAuthorization bool //true if authorization is enabled and based on teams
+	TeamAuthorization int
 	AuthURL           string
 	TokenURL          string
 	TlsCertfilePath   string
