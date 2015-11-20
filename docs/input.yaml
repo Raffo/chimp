@@ -1,13 +1,16 @@
 ---
-name: demo
-imageURL: YOUR_IMAGE
-replicas: 3
-ports: 
-  - 8080
-CPULimit: 1
-MemoryLimit: 4000MB
-force: true
-env:
-  MYENVVAR: "test"
-
-
+DeployRequest:
+  - name: demo
+    imageURL: YOUR_IMAGE
+    replicas: 3
+    ports:
+      - 8080
+    CPULimit: 1
+    MemoryLimit: 4000MB
+    force: true
+    env:
+      MYENVVAR: "test"
+    volumes:
+        - hostPath: /etc/chimp-server/config.yaml
+          containerPath: /etc/chimp-server/config.yaml
+          mode: "RO"
