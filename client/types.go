@@ -1,5 +1,9 @@
 package client
 
+type ChimpDefinition struct {
+	DeployRequest []CmdClientRequest
+}
+
 type CmdClientRequest struct {
 	Name        string
 	ImageURL    string
@@ -10,6 +14,7 @@ type CmdClientRequest struct {
 	CPULimit    int
 	MemoryLimit string
 	Force       bool
+	Volumes     []*Volume
 }
 
 type Replica struct {
@@ -43,6 +48,7 @@ type Container struct {
 	Ports    []*PortType       `json:"ports"`
 	Status   string            `json:"status"`
 	LogInfo  map[string]string `json:"loginfo"`
+	Volumes  []*Volume         `json:"volumes"`
 }
 
 type Error struct {
@@ -51,4 +57,11 @@ type Error struct {
 
 type ListDeployments struct {
 	Deployments []string `json:"deployments"`
+}
+
+type Volume struct {
+	Name          string `json:"name"`
+	ContainerPath string `json:"containerPath"`
+	HostPath      string `json:"hostPath"`
+	Mode          string `json:"mode"`
 }
