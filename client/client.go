@@ -225,7 +225,7 @@ func (bc *Client) ListDeploy(all bool) {
 func (bc *Client) CreateDeploy(cmdReq *CmdClientRequest) {
 	deploy := map[string]interface{}{"Name": cmdReq.Name, "Ports": cmdReq.Ports, "Labels": cmdReq.Labels,
 		"ImageURL": cmdReq.ImageURL, "Env": cmdReq.Env, "Replicas": cmdReq.Replicas, "CPULimit": cmdReq.CPULimit,
-		"MemoryLimit": cmdReq.MemoryLimit, "Force": cmdReq.Force}
+		"MemoryLimit": cmdReq.MemoryLimit, "Force": cmdReq.Force, "Volumes": cmdReq.Volumes}
 	url := bc.buildDeploymentURL("", nil)
 	_, res, err := bc.makeRequest("POST", url, deploy)
 	if err != nil {

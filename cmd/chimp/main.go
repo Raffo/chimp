@@ -83,7 +83,7 @@ Options:
 			fmt.Println("Cannot parse, please provide valid options.")
 			os.Exit(1)
 		}
-		cli.CreateDeploy(cmdReq)
+		cli.CreateDeploy(&cmdReq.DeployRequest[0])
 	} else if arguments["delete"].(bool) {
 		cli.GetAccessToken(username)
 		cli.DeleteDeploy(name)
@@ -101,7 +101,7 @@ Options:
 			fmt.Println("Cannot parse, please provide valid options.")
 			os.Exit(1)
 		}
-		cli.UpdateDeploy(cmdReq)
+		cli.UpdateDeploy(&cmdReq.DeployRequest[0])
 	} else if arguments["scale"].(bool) {
 		cli.GetAccessToken(username)
 		replicas := GetIntFromArgs(arguments, "<replicas>", 1)
@@ -165,9 +165,9 @@ func createClient(arguments map[string]interface{}) client.Client {
 }
 
 //FIXME dirty hack to make labels work
-func buildRequest(arguments map[string]interface{}) (*client.CmdClientRequest, error) {
+func buildRequest(arguments map[string]interface{}) (*client.ChimpDefinition, error) {
 	//reading configuration file
-	var c client.CmdClientRequest
+	var c client.ChimpDefinition
 	fileName := GetStringFromArgs(arguments, "<filename>", "")
 	if fileName != "" {
 		viper := viper.New()
@@ -191,18 +191,16 @@ func buildRequest(arguments map[string]interface{}) (*client.CmdClientRequest, e
 		memoryLimit := GetStringFromArgs(arguments, "--memory", "0M") //unlimited or backend decided
 
 		ports := []int{svcport}
-		c.Labels = labels
-		c.Env = envVars
-		c.Replicas = replicas
-		c.ImageURL = imageURL
-		c.CPULimit = cpuNumber
-		c.MemoryLimit = memoryLimit
-		c.Ports = ports
-		c.Name = name
+		c.DeployRequest[0].Labels = labels
+		c.DeployRequest[0].Env = envVars
+		c.DeployRequest[0].Replicas = replicas
+		c.DeployRequest[0].ImageURL = imageURL
+		c.DeployRequest[0].CPULimit = cpuNumber
+		c.DeployRequest[0].MemoryLimit = memoryLimit
+		c.DeployRequest[0].Ports = ports
+		c.DeployRequest[0].Name = name
 	}
 
-	var force bool = arguments["--force"].(bool)
-	c.Force = force
 	return &c, nil
 
 }

@@ -186,6 +186,12 @@ func (mb MarathonBackend) Deploy(cr *backend.CreateRequest) (string, error) {
 	app.Labels = labels
 
 	app.Container.Docker.Container(imageurl).ForcePullImage = true
+	volumes := make([]*marathon.Volume, 0, len(cr.Volumes))
+	for _, volume := range cr.Volumes {
+		volumes = append(volumes, &marathon.Volume{ContainerPath: volume.ContainerPath, HostPath: volume.HostPath, Mode: volume.Mode})
+	}
+
+	app.Container.Volumes = volumes
 
 	//forcing basic health checks by default.
 	//TODO  must be configurable later.

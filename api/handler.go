@@ -26,6 +26,14 @@ type DeployRequest struct {
 	CPULimit    int
 	MemoryLimit string
 	Force       bool
+	Volumes     []*Volume
+}
+
+type Volume struct {
+	Name          string `json:"name"`
+	ContainerPath string `json:"containerPath"`
+	HostPath      string `json:"hostPath"`
+	Mode          string `json:"mode"`
 }
 
 // If we need data bound to the backend we put it here, p.e. channels to communicate with frontend
@@ -123,9 +131,14 @@ func deployCreate(ginCtx *gin.Context) {
 		return
 	}
 
+	volumes := make([]*backend.Volume, len(givenDeploy.Volumes))
+	for i, vol := range givenDeploy.Volumes {
+		volumes[i] = &backend.Volume{HostPath: vol.HostPath, ContainerPath: vol.ContainerPath, Mode: vol.Mode}
+	}
+
 	var beReq *backend.CreateRequest = &backend.CreateRequest{BaseRequest: backend.BaseRequest{
 		Name: givenDeploy.Name, Ports: givenDeploy.Ports, Labels: givenDeploy.Labels, ImageURL: givenDeploy.ImageURL, Env: givenDeploy.Env, Replicas: givenDeploy.Replicas,
-		CPULimit: givenDeploy.CPULimit, MemoryLimit: memoryLimit, Force: givenDeploy.Force}}
+		CPULimit: givenDeploy.CPULimit, MemoryLimit: memoryLimit, Force: givenDeploy.Force, Volumes: volumes}}
 	beRes, err := se.Backend.Deploy(beReq)
 	if err != nil {
 		glog.Errorf("Could not create a deploy, caused by: %s", err.Error())

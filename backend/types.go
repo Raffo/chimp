@@ -19,6 +19,7 @@ type BaseRequest struct {
 	CPULimit    int
 	MemoryLimit int
 	Force       bool
+	Volumes     []*Volume
 }
 
 // deploy result //TODO do we need to add more info?
@@ -70,6 +71,7 @@ type Container struct {
 	Ports    []*PortType       `json:"ports"`
 	Status   string            `json:"status"`
 	LogInfo  map[string]string `json:"loginfo"`
+	Volumes  []*Volume         `json:"volumes"`
 }
 
 type ListDeployments []string
@@ -77,4 +79,11 @@ type ListDeployments []string
 type ScaleRequest struct {
 	Name     string
 	Replicas int
+}
+
+type Volume struct {
+	Name          string `json:"name"`
+	ContainerPath string `json:"containerPath"`
+	HostPath      string `json:"hostPath"`
+	Mode          string `json:"mode"`
 }
