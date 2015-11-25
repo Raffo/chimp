@@ -164,7 +164,6 @@ func createClient(arguments map[string]interface{}) client.Client {
 	}
 }
 
-//FIXME dirty hack to make labels work
 func buildRequest(arguments map[string]interface{}) (*client.ChimpDefinition, error) {
 	//reading configuration file
 	var c client.ChimpDefinition
