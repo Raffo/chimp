@@ -113,7 +113,8 @@ func deployCreate(ginCtx *gin.Context) {
 	if givenDeploy.Labels == nil {
 		givenDeploy.Labels = make(map[string]string, 2)
 	}
-	givenDeploy.Labels[team] = uid
+	givenDeploy.Labels["team"] = team
+	givenDeploy.Labels["user"] = uid
 
 	ginCtx.Set("data", givenDeploy)
 	if err != nil {
