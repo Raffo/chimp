@@ -11,7 +11,6 @@ import (
 	"github.com/vrischmann/envconfig"
 	"github.com/zalando-techmonkeys/chimp/client"
 	konfig "github.com/zalando-techmonkeys/chimp/conf/client"
-	"golang.org/x/oauth2"
 )
 
 //Buildstamp and Githash are used to set information at build time regarding
@@ -60,6 +59,7 @@ Options:
   --debug  Debug
   --verbose  Verbose logging
   --force  Force deployment
+  --cluster=<cluster> The endpoint of the cluster. "all" means deployed on every cluster in the config.
 `)
 
 	arguments, err := docopt.Parse(usage, nil, true, fmt.Sprintf("%s Build Time: %s - Git Commit Hash: %s", os.Args[0], Buildstamp, Githash), false)
@@ -113,16 +113,30 @@ Options:
 
 func createClient(arguments map[string]interface{}) client.Client {
 	//loading configuration from file. it is overridden by the command line parameters
+	clusterName := (arguments["--cluster"])
 	configuration := konfig.New()
-	server := configuration.Server
+	clusters := []string{} //array of endpoints
+	if clusterName == nil || clusterName == "all" || clusterName == "ALL" {
+		//deploying to all clusters
+		for k, _ := range configuration.Clusters {
+			clusters = append(clusters, k)
+		}
+	} else {
+		if configuration.Clusters[clusterName.(string)] == nil {
+			fmt.Printf("Cluster name is invalid.\n")
+			os.Exit(-1)
+		}
+		clusters = append(clusters, clusterName.(string))
+	}
+
 	port := configuration.Port
 	_server := arguments["--reqserver"]
 	_port := arguments["--reqport"]
 	//defaulting to some values if this is present
 	if _server != nil {
-		server = _server.(string)
-	} else if server == "" {
-		server = "127.0.0.1"
+		clusters = []string{_server.(string)}
+	} else if len(clusters) == 0 {
+		clusters = []string{"127.0.0.1"}
 	}
 	if _port != nil {
 		var s string
@@ -144,23 +158,20 @@ func createClient(arguments map[string]interface{}) client.Client {
 		scheme = "http"
 	}
 
-	var oauth2Enabled bool
+	/*var oauth2Enabled bool
 	if arguments["--oauth2"].(bool) {
 		oauth2Enabled = true
 	} else {
 		oauth2Enabled = configuration.Oauth2Enabled
-	}
+	}*/
 
 	accessToken := GetStringFromArgs(arguments, "--oauth2-token", "")
-	oauth2Authurl := GetStringFromArgs(arguments, "--oauth2-authurl", configuration.OauthURL)
-	oauth2Tokeninfourl := GetStringFromArgs(arguments, "--oauth2-tokeninfourl", configuration.TokenURL)
-	oauth2Endpoint := oauth2.Endpoint{AuthURL: oauth2Authurl, TokenURL: oauth2Tokeninfourl}
 
-	return client.Client{Host: server,
-		Port: port, Scheme: scheme,
-		Oauth2Enabled:  oauth2Enabled,
-		AccessToken:    accessToken,
-		OAuth2Endpoint: oauth2Endpoint,
+	return client.Client{
+		Clusters:    clusters,
+		Config:      configuration,
+		Scheme:      scheme,
+		AccessToken: accessToken,
 	}
 }
 

@@ -51,7 +51,11 @@ func initMarathonClient() marathon.Marathon {
 func (mb MarathonBackend) GetAppNames(filter map[string]string) ([]string, error) {
 	marathonFilter := make(url.Values, 1)
 	arr := make([]string, 0)
-	arr = append(arr, filter["team"])
+
+	if filter["team"] != "" {
+		arr = append(arr, fmt.Sprintf("team==%s", filter["team"]))
+	}
+
 	marathonFilter["label"] = arr
 	applications, err := mb.Client.Applications(marathonFilter)
 	if err != nil {

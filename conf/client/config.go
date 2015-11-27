@@ -11,12 +11,17 @@ import (
 )
 
 type ClientConfig struct {
-	Server        string //"marathon" or any other implemented backend
+	Clusters      map[string]*Cluster
 	Port          int    //URL of the backend
 	HttpOnly      bool   //true if we must use only http and not https for request (security not enabled!)
 	Oauth2Enabled bool   //true if oauth2 is enabled
 	OauthURL      string //the oauth2 endpoint to be used
 	TokenURL      string //the oauth2 token info endpoint
+}
+
+type Cluster struct {
+	Ip   string
+	Port int
 }
 
 //shared state for configuration

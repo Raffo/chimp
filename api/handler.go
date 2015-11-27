@@ -90,6 +90,8 @@ func deployList(ginCtx *gin.Context) {
 	result, err := se.Backend.GetAppNames(filter)
 	if err != nil {
 		glog.Errorf("Could not get artifacts from backend for LIST request, caused by: %s", err.Error())
+		ginCtx.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("Could not get artifact from backend for INFO, caused by: %s", err)})
+		return
 	}
 	ginCtx.JSON(http.StatusOK, gin.H{"deployments": result})
 }
