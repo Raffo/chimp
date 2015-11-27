@@ -158,13 +158,6 @@ func createClient(arguments map[string]interface{}) client.Client {
 		scheme = "http"
 	}
 
-	/*var oauth2Enabled bool
-	if arguments["--oauth2"].(bool) {
-		oauth2Enabled = true
-	} else {
-		oauth2Enabled = configuration.Oauth2Enabled
-	}*/
-
 	accessToken := GetStringFromArgs(arguments, "--oauth2-token", "")
 
 	return client.Client{
