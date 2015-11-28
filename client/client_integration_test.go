@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	konfig "github.com/zalando-techmonkeys/chimp/conf/client"
 )
 
 var wait bool
 
 func getClient() *Client {
-	clientino := Client{Host: "127.0.0.1", Port: 8082, Scheme: "http"}
+	clusters := map[string]*konfig.Cluster{}
+	clusters["LOCAL"] = &konfig.Cluster{Ip: "localhost", Port: 8082}
+	clientino := Client{Config: &konfig.ClientConfig{Clusters: clusters}, Scheme: "http"}
 	return &clientino
 }
 
