@@ -1,6 +1,8 @@
 ---
-server: localhost
-port: 8082
+clusters:
+  LOCAL:
+    ip: localhost
+    port: 8082
 httpOnly: true
 oauth2Enabled: true
 oauthURL: https://token.auth.zalando.com/access_token
