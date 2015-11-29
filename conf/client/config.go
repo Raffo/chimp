@@ -10,24 +10,26 @@ import (
 	"github.com/spf13/viper"
 )
 
+//ClientConfig is the configuration from the client. Usually loaded from config files.
 type ClientConfig struct {
-	Clusters      map[string]*Cluster
-	Port          int    //URL of the backend
-	HttpOnly      bool   //true if we must use only http and not https for request (security not enabled!)
-	Oauth2Enabled bool   //true if oauth2 is enabled
-	OauthURL      string //the oauth2 endpoint to be used
-	TokenURL      string //the oauth2 token info endpoint
+	Clusters      map[string]*Cluster //map of clusters by name.
+	Port          int                 //URL of the backend
+	HTTPOnly      bool                //true if we must use only http and not https for request (security not enabled!)
+	Oauth2Enabled bool                //true if oauth2 is enabled
+	OauthURL      string              //the oauth2 endpoint to be used
+	TokenURL      string              //the oauth2 token info endpoint
 }
 
+//Cluster is used to represent the main endpoint of a chimp server, used to target a specific cluster
 type Cluster struct {
-	Ip   string
+	IP   string
 	Port int
 }
 
 //shared state for configuration
 var clientConf *ClientConfig
 
-//GetConfig gets the loaded configuration
+//New gets the ClientConfiguration
 func New() *ClientConfig {
 	if clientConf == nil {
 		c, err := clientConfigInit("config.yaml")

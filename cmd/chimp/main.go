@@ -11,17 +11,20 @@ import (
 	"github.com/vrischmann/envconfig"
 	"github.com/zalando-techmonkeys/chimp/client"
 	konfig "github.com/zalando-techmonkeys/chimp/conf/client"
+	. "github.com/zalando-techmonkeys/chimp/types"
 )
 
 //Buildstamp and Githash are used to set information at build time regarding
 //the version of the build.
 //Buildstamp is used for storing the timestamp of the build
-var Buildstamp string = "Not set"
+var Buildstamp = "Not set"
 
 //Githash is used for storing the commit hash of the build
-var Githash string = "Not set"
+var Githash = "Not set"
 
+//DEBUG enables debug mode in the cli. Used for verbose printing //TODO: currently brokend
 var DEBUG bool
+
 var conf struct {
 	AccessUser     string `envconfig:"optional"`
 	AccessPassword string `envconfig:"optional"`
@@ -68,7 +71,7 @@ Options:
 	}
 
 	DEBUG = arguments["--debug"].(bool)
-	var verbose bool = arguments["--verbose"].(bool)
+	var verbose = arguments["--verbose"].(bool)
 	// Auth information from ENV and parameter
 	if err := envconfig.Init(&conf); err != nil {
 		fmt.Printf("ERR: envconfig failed, caused by: %s\n", err)
@@ -118,7 +121,7 @@ func createClient(arguments map[string]interface{}) client.Client {
 	clusters := []string{} //array of endpoints
 	if clusterName == nil || clusterName == "all" || clusterName == "ALL" {
 		//deploying to all clusters
-		for k, _ := range configuration.Clusters {
+		for k := range configuration.Clusters {
 			clusters = append(clusters, k)
 		}
 	} else {
@@ -148,8 +151,8 @@ func createClient(arguments map[string]interface{}) client.Client {
 	} else if port == 0 {
 		port = 8082
 	}
-	var scheme string = "https"
-	httpOnly := konfig.New().HttpOnly
+	var scheme = "https"
+	httpOnly := konfig.New().HTTPOnly
 	if httpOnly {
 		scheme = "http"
 	}
@@ -168,9 +171,9 @@ func createClient(arguments map[string]interface{}) client.Client {
 	}
 }
 
-func buildRequest(arguments map[string]interface{}) (*client.ChimpDefinition, error) {
+func buildRequest(arguments map[string]interface{}) (*ChimpDefinition, error) {
 	//reading configuration file
-	var c client.ChimpDefinition
+	var c ChimpDefinition
 	fileName := GetStringFromArgs(arguments, "<filename>", "")
 	if fileName != "" {
 		viper := viper.New()

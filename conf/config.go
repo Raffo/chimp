@@ -13,11 +13,12 @@ import (
 
 //constants for authorization
 const (
-	NO_AUTH         = iota //0
-	INDIVIDUAL_AUTH        //1
-	TEAM_AUTH              //2
+	NoAuth         = iota //0
+	IndividualAuth        //1
+	TeamAuth              //2
 )
 
+//Config is the current configuration for the server. It's mapped to a yaml file
 type Config struct {
 	BackendType       string //"marathon" or "kubernetes"
 	Endpoint          string //URL of the backend
@@ -27,8 +28,8 @@ type Config struct {
 	AuthorizationType int
 	AuthURL           string
 	TokenURL          string
-	TlsCertfilePath   string
-	TlsKeyfilePath    string
+	TLSCertfilePath   string
+	TLSKeyfilePath    string
 	LogFlushInterval  time.Duration
 	Port              int
 	AuthorizedTeams   []AccessTuple
@@ -37,13 +38,14 @@ type Config struct {
 	VersionGitHash    string
 }
 
+//AccessTuple reprsent an entry for Auth
 type AccessTuple struct {
 	Realm string
-	Uid   string
+	UID   string
 	Cn    string
 }
 
-//created a struct just for future usage
+//ConfigError contains the error while unmarshalling the config file
 type ConfigError struct {
 	Message string
 }
@@ -51,7 +53,7 @@ type ConfigError struct {
 //shared state for configuration
 var conf *Config
 
-//GetConfig gets the loaded configuration
+//New gets an instance of the loaded configuration
 func New() *Config {
 	var err *ConfigError
 	if conf == nil {

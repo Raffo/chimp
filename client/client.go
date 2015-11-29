@@ -14,9 +14,11 @@ import (
 
 	printer "github.com/olekukonko/tablewriter"
 	konfig "github.com/zalando-techmonkeys/chimp/conf/client"
+	. "github.com/zalando-techmonkeys/chimp/types"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+//Client is the struct for accessing client functionalities
 type Client struct {
 	Config      *konfig.ClientConfig
 	AccessToken string
@@ -26,6 +28,7 @@ type Client struct {
 
 var homeDirectories = []string{"HOME", "USERPROFILES"}
 
+//RenewAccessToken is used to get a new Oauth2 access token
 func (bc *Client) RenewAccessToken(username string) {
 	if username == "" {
 		reader := bufio.NewReader(os.Stdin)
@@ -45,10 +48,10 @@ func (bc *Client) RenewAccessToken(username string) {
 		fmt.Printf("ERR: Could not parse given Auth URL: %s\n", bc.Config.OauthURL)
 		os.Exit(1)
 	}
-	auth_url_str := fmt.Sprintf("https://%s%s%s%s", u.Host, u.Path, u.RawQuery, u.Fragment)
-	fmt.Printf("Getting token from URL: %s\n", auth_url_str)
+	authURLStr := fmt.Sprintf("https://%s%s%s%s", u.Host, u.Path, u.RawQuery, u.Fragment)
+	fmt.Printf("Getting token from URL: %s\n", authURLStr)
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", auth_url_str, nil)
+	req, err := http.NewRequest("GET", authURLStr, nil)
 	req.SetBasicAuth(username, password)
 	res, err := client.Do(req)
 
@@ -107,7 +110,7 @@ func (bc *Client) GetAccessToken(username string) {
 func (bc *Client) buildDeploymentURL(name string, params map[string]string, cluster string) string {
 	u := new(url.URL)
 	u.Scheme = bc.Scheme
-	host := bc.Config.Clusters[cluster].Ip
+	host := bc.Config.Clusters[cluster].IP
 	port := bc.Config.Clusters[cluster].Port
 	u.Host = net.JoinHostPort(host, strconv.Itoa(port))
 	if bc.Scheme == "https" && port == 443 {
@@ -125,7 +128,7 @@ func (bc *Client) buildDeploymentURL(name string, params map[string]string, clus
 func (bc *Client) buildDeploymentReplicasURL(name string, replicas int, cluster string) string {
 	u := new(url.URL)
 	u.Scheme = bc.Scheme
-	host := bc.Config.Clusters[cluster].Ip
+	host := bc.Config.Clusters[cluster].IP
 	port := bc.Config.Clusters[cluster].Port
 	u.Host = net.JoinHostPort(host, strconv.Itoa(port))
 	if bc.Scheme == "https" && port == 443 {
@@ -135,6 +138,7 @@ func (bc *Client) buildDeploymentReplicasURL(name string, replicas int, cluster 
 	return u.String()
 }
 
+//DeleteDeploy is used to delete a deployment from the cluster/server
 func (bc *Client) DeleteDeploy(name string) {
 	for _, clusterName := range bc.Clusters {
 		url := bc.buildDeploymentURL(name, nil, clusterName)
@@ -161,6 +165,7 @@ func (bc *Client) DeleteDeploy(name string) {
 	}
 }
 
+//InfoDeploy is used the get the information for a currently running deployment
 func (bc *Client) InfoDeploy(name string, verbose bool) {
 	for _, clusterName := range bc.Clusters {
 		fmt.Println(clusterName)
@@ -190,10 +195,11 @@ func (bc *Client) InfoDeploy(name string, verbose bool) {
 	}
 }
 
+//ListDeploy is used to get a list of the running deployments in the cluster
 func (bc *Client) ListDeploy(all bool) {
 	for _, clusterName := range bc.Clusters {
 		fmt.Println(clusterName)
-		var query map[string]string = nil
+		var query map[string]string
 		if all {
 			query = map[string]string{"all": "true"}
 		}
@@ -230,6 +236,8 @@ func (bc *Client) ListDeploy(all bool) {
 	}
 }
 
+//CreateDeploy is used to deploy a new app. If an app with the same name is already deployed,
+//an error will be returned.
 func (bc *Client) CreateDeploy(cmdReq *CmdClientRequest) {
 	//for each datacenter, create the app
 	for _, clusterName := range bc.Clusters {
@@ -263,6 +271,7 @@ func (bc *Client) CreateDeploy(cmdReq *CmdClientRequest) {
 
 }
 
+//UpdateDeploy is used to update an already deployed app
 func (bc *Client) UpdateDeploy(cmdReq *CmdClientRequest) {
 	for _, clusterName := range bc.Clusters {
 		fmt.Println(clusterName)
@@ -293,6 +302,7 @@ func (bc *Client) UpdateDeploy(cmdReq *CmdClientRequest) {
 	}
 }
 
+//Scale is used to scale an existing application to the number of replicas specified
 func (bc *Client) Scale(name string, replicas int) {
 	for _, clusterName := range bc.Clusters {
 		fmt.Println(clusterName)
@@ -324,9 +334,8 @@ func (bc *Client) Scale(name string, replicas int) {
 func errorMessageBuilder(message string, err error) string {
 	if strings.Contains(err.Error(), "tls: oversized") {
 		return fmt.Sprintf("%s, caused by: cannot estabilish an https connection.", message)
-	} else {
-		return fmt.Sprintf("%s, caused by: %s", message, err.Error())
 	}
+	return fmt.Sprintf("%s, caused by: %s", message, err.Error())
 }
 
 func printInfoTable(verbose bool, artifact Artifact) {
@@ -334,8 +343,8 @@ func printInfoTable(verbose bool, artifact Artifact) {
 	//iterate table and print
 	table.SetHeader([]string{"Name", "Status", "Endpoints", "Num Replicas", "CPUs", "Memory", "Last Message"})
 	row := []string{}
-	var endpoints string = ""
-	var ports string = ""
+	var endpoints string
+	var ports string
 	for _, replica := range artifact.RunningReplicas {
 		endpoints = endpoints + fmt.Sprintf("%s\n", replica.Endpoints)
 		for _, port := range replica.Ports {

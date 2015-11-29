@@ -14,8 +14,10 @@ import (
 	"github.com/zalando-techmonkeys/chimp/conf"
 	"github.com/zalando-techmonkeys/chimp/marathon"
 	mock "github.com/zalando-techmonkeys/chimp/mockbackend"
+	. "github.com/zalando-techmonkeys/chimp/types"
 )
 
+//DeployRequest is the struct used to represent a request to deploy
 type DeployRequest struct {
 	Name        string            // "shop"
 	Labels      map[string]string // {"env": "live", "project": "shop"}
@@ -29,24 +31,18 @@ type DeployRequest struct {
 	Volumes     []*Volume
 }
 
-type Volume struct {
-	Name          string `json:"name"`
-	ContainerPath string `json:"containerPath"`
-	HostPath      string `json:"hostPath"`
-	Mode          string `json:"mode"`
-}
-
-// If we need data bound to the backend we put it here, p.e. channels to communicate with frontend
+//Backend contains the current backend
 type Backend struct {
 	BackendType string
 	Backend     backend.Backend
 }
 
 // Bootstrap backend
-var se Backend = Backend{
+var se = Backend{
 	BackendType: conf.New().BackendType,
 }
 
+//Start initializes the current backend
 func Start() {
 	glog.Infof("backend type from config: %s", se.BackendType)
 	//Where the backend switch happens
@@ -81,7 +77,7 @@ func healthHandler(ginCtx *gin.Context) {
 func deployList(ginCtx *gin.Context) {
 	team, uid := buildTeamLabel(ginCtx)
 	all := ginCtx.Query("all")
-	var filter map[string]string = nil
+	var filter map[string]string
 	if all == "" {
 		filter = make(map[string]string, 2)
 		filter["uid"] = uid
@@ -99,7 +95,7 @@ func deployList(ginCtx *gin.Context) {
 func deployInfo(ginCtx *gin.Context) {
 	name := ginCtx.Params.ByName("name")
 	glog.Infof("retrieve info by name: %s", name)
-	var arReq backend.ArtifactRequest = backend.ArtifactRequest{Action: backend.INFO, Name: name}
+	var arReq = ArtifactRequest{Action: INFO, Name: name}
 	result, err := se.Backend.GetApp(&arReq)
 	if err != nil {
 		glog.Errorf("Could not get artifact from backend for INFO request with name %s, caused by: %s", name, err.Error())
@@ -134,12 +130,12 @@ func deployCreate(ginCtx *gin.Context) {
 		return
 	}
 
-	volumes := make([]*backend.Volume, len(givenDeploy.Volumes))
+	volumes := make([]*Volume, len(givenDeploy.Volumes))
 	for i, vol := range givenDeploy.Volumes {
-		volumes[i] = &backend.Volume{HostPath: vol.HostPath, ContainerPath: vol.ContainerPath, Mode: vol.Mode}
+		volumes[i] = &Volume{HostPath: vol.HostPath, ContainerPath: vol.ContainerPath, Mode: vol.Mode}
 	}
 
-	var beReq *backend.CreateRequest = &backend.CreateRequest{BaseRequest: backend.BaseRequest{
+	var beReq = &CreateRequest{BaseRequest: BaseRequest{
 		Name: givenDeploy.Name, Ports: givenDeploy.Ports, Labels: givenDeploy.Labels, ImageURL: givenDeploy.ImageURL, Env: givenDeploy.Env, Replicas: givenDeploy.Replicas,
 		CPULimit: givenDeploy.CPULimit, MemoryLimit: memoryLimit, Force: givenDeploy.Force, Volumes: volumes}}
 	beRes, err := se.Backend.Deploy(beReq)
@@ -171,10 +167,10 @@ func deployUpsert(ginCtx *gin.Context) {
 		return
 	}
 
-	var beReq *backend.UpdateRequest = &backend.UpdateRequest{BaseRequest: backend.BaseRequest{Name: deploy.Name, Ports: deploy.Ports, Labels: deploy.Labels, ImageURL: deploy.ImageURL, Env: deploy.Env, Replicas: deploy.Replicas,
+	var beReq = UpdateRequest{BaseRequest: BaseRequest{Name: deploy.Name, Ports: deploy.Ports, Labels: deploy.Labels, ImageURL: deploy.ImageURL, Env: deploy.Env, Replicas: deploy.Replicas,
 		CPULimit: deploy.CPULimit, MemoryLimit: memoryLimit, Force: deploy.Force}}
 
-	_, err = se.Backend.UpdateDeployment(beReq)
+	_, err = se.Backend.UpdateDeployment(&beReq)
 	if err != nil {
 		glog.Errorf("Could not update deploy, caused by: %s", err.Error())
 		ginCtx.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
@@ -188,7 +184,7 @@ func deployUpsert(ginCtx *gin.Context) {
 func deployDelete(ginCtx *gin.Context) {
 	name := ginCtx.Params.ByName("name")
 	glog.Info("delete by name: %s", name)
-	var ar backend.ArtifactRequest = backend.ArtifactRequest{Action: backend.DELETE, Name: name}
+	var ar = ArtifactRequest{Action: DELETE, Name: name}
 	_, err := se.Backend.Delete(&ar)
 	if err != nil {
 		glog.Errorf("Could not get artifact from backend for CANCEL request with name %s, caused by: %s", name, err.Error())
@@ -210,7 +206,7 @@ func deployReplicasModify(ginCtx *gin.Context) {
 		ginCtx.Error(err)
 		return
 	}
-	var beReq *backend.ScaleRequest = &backend.ScaleRequest{Name: name, Replicas: replicas}
+	var beReq = &ScaleRequest{Name: name, Replicas: replicas}
 
 	_, err = se.Backend.Scale(beReq)
 	if err != nil {
@@ -262,7 +258,6 @@ func buildTeamLabel(ginCtx *gin.Context) (string, string) {
 	team, teamSet := ginCtx.Get("team")
 	if uidSet && teamSet {
 		return team.(string), uid.(string)
-	} else {
-		return "", ""
 	}
+	return "", ""
 }
