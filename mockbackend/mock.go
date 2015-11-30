@@ -1,21 +1,25 @@
 package mockbackend
 
-import . "github.com/zalando-techmonkeys/chimp/backend"
+import (
+	. "github.com/zalando-techmonkeys/chimp/types"
+)
 
-type MockBackend struct {
-	ErrorProbability float32
-}
+//MockBackend is used to have a fake backend that mocks the current behaviour of a backend.
+//This is mostly model on marathon, but should be somehow consistent with kubernetes or any other backend.
+type MockBackend struct{}
 
+//New returns an instance of the MockBackend.
 func New() *MockBackend {
 	ma := MockBackend{}
-	ma.ErrorProbability = 0.0
 	return &ma
 }
 
+//GetAppNames is used to get a list of names for app deployed
 func (mb MockBackend) GetAppNames(filter map[string]string) ([]string, error) {
 	return []string{"fake-cat"}, nil
 }
 
+//GetApp is used to get information related to one specif app
 func (mb MockBackend) GetApp(req *ArtifactRequest) (*Artifact, error) {
 	replicas := make([]*Replica, 0, 1)
 	containers := make([]*Container, 0, 1)
@@ -35,18 +39,22 @@ func (mb MockBackend) GetApp(req *ArtifactRequest) (*Artifact, error) {
 	return &artifact, nil
 }
 
+//Deploy deploys an application. In this case, it only returns the name of the app deployed
 func (mb MockBackend) Deploy(req *CreateRequest) (string, error) {
 	return "fake-cat", nil
 }
 
+//Scale scales an already deployed application. In this case it only returns the name of the app deleted
 func (mb MockBackend) Scale(scale *ScaleRequest) (string, error) {
 	return "fake-cat", nil
 }
 
+//Delete deletes and application currently deployed. In this case it only returns the name of the app deleted
 func (mb MockBackend) Delete(deleteReq *ArtifactRequest) (string, error) {
 	return "fake-cat", nil
 }
 
+//UpdateDeployment updates one application currenly deployed. In this case it only returns the name of the app updated.
 func (mb MockBackend) UpdateDeployment(req *UpdateRequest) (string, error) {
 	return "fake-cat", nil
 }

@@ -11,18 +11,20 @@ import (
 	"github.com/vrischmann/envconfig"
 	"github.com/zalando-techmonkeys/chimp/client"
 	konfig "github.com/zalando-techmonkeys/chimp/conf/client"
-	"golang.org/x/oauth2"
+	. "github.com/zalando-techmonkeys/chimp/types"
 )
 
 //Buildstamp and Githash are used to set information at build time regarding
 //the version of the build.
 //Buildstamp is used for storing the timestamp of the build
-var Buildstamp string = "Not set"
+var Buildstamp = "Not set"
 
 //Githash is used for storing the commit hash of the build
-var Githash string = "Not set"
+var Githash = "Not set"
 
+//DEBUG enables debug mode in the cli. Used for verbose printing //TODO: currently brokend
 var DEBUG bool
+
 var conf struct {
 	AccessUser     string `envconfig:"optional"`
 	AccessPassword string `envconfig:"optional"`
@@ -60,6 +62,7 @@ Options:
   --debug  Debug
   --verbose  Verbose logging
   --force  Force deployment
+  --cluster=<cluster> The endpoint of the cluster. "all" means deployed on every cluster in the config.
 `)
 
 	arguments, err := docopt.Parse(usage, nil, true, fmt.Sprintf("%s Build Time: %s - Git Commit Hash: %s", os.Args[0], Buildstamp, Githash), false)
@@ -68,7 +71,7 @@ Options:
 	}
 
 	DEBUG = arguments["--debug"].(bool)
-	var verbose bool = arguments["--verbose"].(bool)
+	var verbose = arguments["--verbose"].(bool)
 	// Auth information from ENV and parameter
 	if err := envconfig.Init(&conf); err != nil {
 		fmt.Printf("ERR: envconfig failed, caused by: %s\n", err)
@@ -113,16 +116,30 @@ Options:
 
 func createClient(arguments map[string]interface{}) client.Client {
 	//loading configuration from file. it is overridden by the command line parameters
+	clusterName := (arguments["--cluster"])
 	configuration := konfig.New()
-	server := configuration.Server
+	clusters := []string{} //array of endpoints
+	if clusterName == nil || clusterName == "all" || clusterName == "ALL" {
+		//deploying to all clusters
+		for k := range configuration.Clusters {
+			clusters = append(clusters, k)
+		}
+	} else {
+		if configuration.Clusters[clusterName.(string)] == nil {
+			fmt.Printf("Cluster name is invalid.\n")
+			os.Exit(-1)
+		}
+		clusters = append(clusters, clusterName.(string))
+	}
+
 	port := configuration.Port
 	_server := arguments["--reqserver"]
 	_port := arguments["--reqport"]
 	//defaulting to some values if this is present
 	if _server != nil {
-		server = _server.(string)
-	} else if server == "" {
-		server = "127.0.0.1"
+		clusters = []string{_server.(string)}
+	} else if len(clusters) == 0 {
+		clusters = []string{"127.0.0.1"}
 	}
 	if _port != nil {
 		var s string
@@ -134,8 +151,8 @@ func createClient(arguments map[string]interface{}) client.Client {
 	} else if port == 0 {
 		port = 8082
 	}
-	var scheme string = "https"
-	httpOnly := konfig.New().HttpOnly
+	var scheme = "https"
+	httpOnly := konfig.New().HTTPOnly
 	if httpOnly {
 		scheme = "http"
 	}
@@ -144,29 +161,19 @@ func createClient(arguments map[string]interface{}) client.Client {
 		scheme = "http"
 	}
 
-	var oauth2Enabled bool
-	if arguments["--oauth2"].(bool) {
-		oauth2Enabled = true
-	} else {
-		oauth2Enabled = configuration.Oauth2Enabled
-	}
-
 	accessToken := GetStringFromArgs(arguments, "--oauth2-token", "")
-	oauth2Authurl := GetStringFromArgs(arguments, "--oauth2-authurl", configuration.OauthURL)
-	oauth2Tokeninfourl := GetStringFromArgs(arguments, "--oauth2-tokeninfourl", configuration.TokenURL)
-	oauth2Endpoint := oauth2.Endpoint{AuthURL: oauth2Authurl, TokenURL: oauth2Tokeninfourl}
 
-	return client.Client{Host: server,
-		Port: port, Scheme: scheme,
-		Oauth2Enabled:  oauth2Enabled,
-		AccessToken:    accessToken,
-		OAuth2Endpoint: oauth2Endpoint,
+	return client.Client{
+		Clusters:    clusters,
+		Config:      configuration,
+		Scheme:      scheme,
+		AccessToken: accessToken,
 	}
 }
 
-func buildRequest(arguments map[string]interface{}) (*client.ChimpDefinition, error) {
+func buildRequest(arguments map[string]interface{}) (*ChimpDefinition, error) {
 	//reading configuration file
-	var c client.ChimpDefinition
+	var c ChimpDefinition
 	fileName := GetStringFromArgs(arguments, "<filename>", "")
 	if fileName != "" {
 		viper := viper.New()

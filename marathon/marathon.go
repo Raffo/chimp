@@ -10,14 +10,16 @@ import (
 
 	marathon "github.com/gambol99/go-marathon"
 	"github.com/golang/glog"
-	"github.com/zalando-techmonkeys/chimp/backend"
 	"github.com/zalando-techmonkeys/chimp/conf"
+	. "github.com/zalando-techmonkeys/chimp/types"
 )
 
+//MarathonBackend is the wrapper for the marathon API
 type MarathonBackend struct {
 	Client marathon.Marathon
 }
 
+//New returns an instance of the marathon backend
 func New() *MarathonBackend {
 	ma := MarathonBackend{}
 	ma.Client = initMarathonClient()
@@ -50,8 +52,12 @@ func initMarathonClient() marathon.Marathon {
 // about all listed applications
 func (mb MarathonBackend) GetAppNames(filter map[string]string) ([]string, error) {
 	marathonFilter := make(url.Values, 1)
-	arr := make([]string, 0)
-	arr = append(arr, filter["team"])
+	var arr []string
+
+	if filter["team"] != "" {
+		arr = append(arr, fmt.Sprintf("team==%s", filter["team"]))
+	}
+
 	marathonFilter["label"] = arr
 	applications, err := mb.Client.Applications(marathonFilter)
 	if err != nil {
@@ -68,7 +74,7 @@ func (mb MarathonBackend) GetAppNames(filter map[string]string) ([]string, error
 // GetApp returns a specific application from marathon
 // marathon.Application is a struct with a lot of details
 // about the application itself
-func (mb MarathonBackend) GetApp(req *backend.ArtifactRequest) (*backend.Artifact, error) {
+func (mb MarathonBackend) GetApp(req *ArtifactRequest) (*Artifact, error) {
 	application, err := mb.Client.Application(req.Name)
 	if err != nil {
 		glog.Errorf("Could not get application %s, error: %s", req.Name, err)
@@ -87,13 +93,13 @@ func (mb MarathonBackend) GetApp(req *backend.ArtifactRequest) (*backend.Artifac
 				application.LastTaskFailure.Message, application.LastTaskFailure.Timestamp)
 		}
 	}
-	var endpoints []string = make([]string, 0, len(application.Tasks))
+	endpoints := make([]string, 0, len(application.Tasks))
 
 	//transforming the data coming from kubernetes into chimp structure
-	replicas := make([]*backend.Replica, 0, len(application.Tasks))
+	replicas := make([]*Replica, 0, len(application.Tasks))
 	for _, replica := range application.Tasks {
 		//copying container data structure
-		containers := make([]*backend.Container, 0, 1)
+		containers := make([]*Container, 0, 1)
 		status := true
 		statString := "OK"
 		for _, hc := range replica.HealthCheckResult {
@@ -112,26 +118,26 @@ func (mb MarathonBackend) GetApp(req *backend.ArtifactRequest) (*backend.Artifac
 			logInfo = map[string]string{"containerName": containerName, "remoteURL": remoteURL}
 		}
 
-		container := backend.Container{
+		container := Container{
 			ImageURL: application.Container.Docker.Image,
 			Status:   statString,
 			LogInfo:  logInfo,
 		}
 		containers = append(containers, &container)
 
-		ports := make([]*backend.PortType, 0, len(replica.Ports))
+		ports := make([]*PortType, 0, len(replica.Ports))
 		for _, port := range replica.Ports {
-			ports = append(ports, &backend.PortType{Port: port, Protocol: ""})
+			ports = append(ports, &PortType{Port: port, Protocol: ""})
 		}
 		endpoints = append(endpoints, fmt.Sprintf("http://%s:%s/", replica.Host, intslice2str(replica.Ports, "")))
-		replica := backend.Replica{Status: statString, Containers: containers, Endpoints: endpoints, Ports: ports} //HACK, this shouldn't be added only one time
+		replica := Replica{Status: statString, Containers: containers, Endpoints: endpoints, Ports: ports} //HACK, this shouldn't be added only one time
 		endpoints = nil
 		replicas = append(replicas, &replica)
 	}
 
 	//builds the log information
 
-	artifact := backend.Artifact{
+	artifact := Artifact{
 		Name:              application.ID,
 		Message:           message,
 		Status:            status,
@@ -148,7 +154,7 @@ func (mb MarathonBackend) GetApp(req *backend.ArtifactRequest) (*backend.Artifac
 
 // Deploy deploys a new application
 // takes CreateRequest from backend as argument
-func (mb MarathonBackend) Deploy(cr *backend.CreateRequest) (string, error) {
+func (mb MarathonBackend) Deploy(cr *CreateRequest) (string, error) {
 	glog.Infof("Deploying a new application with name %s", cr.Name)
 	app := marathon.NewDockerApplication()
 	id := cr.Name
@@ -218,7 +224,7 @@ func (mb MarathonBackend) Deploy(cr *backend.CreateRequest) (string, error) {
 // Scale provides to scale up or down applications
 // Takes two arguments, first one is app name and
 // second one is the instances number in total
-func (mb MarathonBackend) Scale(scale *backend.ScaleRequest) (string, error) {
+func (mb MarathonBackend) Scale(scale *ScaleRequest) (string, error) {
 	app, err := mb.Client.ScaleApplicationInstances(scale.Name, scale.Replicas, false) //FORCE disabled by default
 	if err != nil {
 		glog.Errorf("Could not scale application %s, error: %s", scale.Name, err)
@@ -229,7 +235,7 @@ func (mb MarathonBackend) Scale(scale *backend.ScaleRequest) (string, error) {
 }
 
 // Delete provides to delete applications by name
-func (mb MarathonBackend) Delete(delReq *backend.ArtifactRequest) (string, error) {
+func (mb MarathonBackend) Delete(delReq *ArtifactRequest) (string, error) {
 	// if application already exists, it will be deleted
 	app, err := mb.Client.DeleteApplication(delReq.Name)
 	if err != nil {
@@ -240,7 +246,8 @@ func (mb MarathonBackend) Delete(delReq *backend.ArtifactRequest) (string, error
 	return app.DeploymentID, nil
 }
 
-func (mb MarathonBackend) UpdateDeployment(req *backend.UpdateRequest) (string, error) {
+// UpdateDeployment updates the current deployment. This means the deployment will be restarted
+func (mb MarathonBackend) UpdateDeployment(req *UpdateRequest) (string, error) {
 	glog.Infof("Updating a previously deployed application")
 	app := marathon.NewDockerApplication()
 	id := req.Name

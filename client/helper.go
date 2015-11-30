@@ -44,13 +44,13 @@ func (bc *Client) buildRequest(method string, url string, entity interface{}) (*
 func encodeEntity(entity interface{}) (io.Reader, error) {
 	if entity == nil {
 		return nil, nil
-	} else {
-		b, err := json.Marshal(entity)
-		if err != nil {
-			return nil, err
-		}
-		return bytes.NewBuffer(b), nil
 	}
+	b, err := json.Marshal(entity)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewBuffer(b), nil
+
 }
 
 func unmarshalResponse(r *http.Response, data interface{}) error {
@@ -62,25 +62,23 @@ func unmarshalResponse(r *http.Response, data interface{}) error {
 	if err != nil {
 		fmt.Printf("%T\n%s\n%#v\n", err, err, err)
 		return errors.New("Cannot unmarshal json data")
-	} else {
-		return nil
 	}
+	return nil
+
 }
 
 func checkStatusOK(status int) bool {
 	if status >= 500 {
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
 func checkAuthOK(status int) bool {
 	if status == 401 || status == 403 {
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
 func handleAuthNOK(status int) {

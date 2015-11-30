@@ -5,7 +5,7 @@ Chimp is the front facing component for our cloud solution.
 This project currently contains chimp's server (chimp-server) and our CLI (chimp).
 
 ## Project Status
-The project is still in active development and we could introduce breaking changes. The master branch is still to be considered as "stable" and most breaking changes will be developed in short lived branches. 
+The project is still in active development and we could introduce breaking changes. The master branch is still to be considered as "stable" and most breaking changes will be developed in short lived branches.
 NOTE: In the kurrent version, the kubernetes support is not working.
 
 ## CHIMP Server
@@ -78,7 +78,7 @@ The cli allows you to do four operations:
 - SCALE: to scale the application to a number of instances
 
 ## Install
-#### from Source
+#### From Source
 
 Install [godep](https://github.com/tools/godep) for dependency management.
 
@@ -98,8 +98,13 @@ To setup the chimp cli put a yaml configuration file named [config.yaml](chimp/d
 Please note that command arguments to chimp command line will override the configuration set in the config.yaml file.
 
 
+### Multi cluster support
+A very rough multi-cluster support has been implemented.
+You can set in chimp (cli) the endpoints of multiple clusters. This allows the user to specify which cluster wants to use with the option ```--cluster=CLUSTERNAME```.
+
 #### Notes
 Be sure to use the right parameters that can be checked with ```chimp --help```.
+
 
 ## Commands
 
@@ -107,7 +112,7 @@ Be sure to use the right parameters that can be checked with ```chimp --help```.
 You can use chimp login to obtain a valid token for the built-in OAuth2 support. Please note that this is not required if
 the server is not configured to use OAuth2.
 ````
-#this will ask your for your password
+#this will ask for your password
 chimp login USERNAME
 ````
 
@@ -124,20 +129,21 @@ The following is an example file:
 
 ````
 ---
-name: cat-2
-imageURL: pierone.stups.zalan.do/cat/cat-hello-aws:0.0.1
-replicas: 7
-ports:
-  - 8080
-labels:
-  k: v
-  k1: v1
-env:
-  k: v
-  k2: v2
-CPULimit: 3
-MemoryLimit: 3000
-force: true
+DeployRequest:
+  - name: demo
+    imageURL: YOUR_IMAGE
+    replicas: 3
+    ports:
+      - 8080
+    CPULimit: 1
+    MemoryLimit: 4000MB
+    force: true
+    env:
+      MYENVVAR: "test"
+    volumes:
+        - hostPath: /etc/chimp-server/config.yaml
+          containerPath: /etc/chimp-server/config.yaml
+          mode: "RO"
 ````
 
 ### Delete

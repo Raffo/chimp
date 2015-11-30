@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+//GetStringFromArgs returns a string from the cli arguments.
 func GetStringFromArgs(arguments map[string]interface{}, name, _default string) string {
 	in := arguments[name]
 	if in == nil {
@@ -14,6 +15,7 @@ func GetStringFromArgs(arguments map[string]interface{}, name, _default string) 
 	return in.(string)
 }
 
+//GetIntFromStr returs an integer from a given string
 func GetIntFromStr(s string) int {
 	i, err := strconv.Atoi(s)
 	if err != nil {
@@ -22,6 +24,7 @@ func GetIntFromStr(s string) int {
 	return int(i)
 }
 
+//GetBoolFromStr gets a boolean from a string
 func GetBoolFromStr(s string) bool {
 	b, err := strconv.ParseBool(s)
 	if err != nil {
@@ -30,24 +33,28 @@ func GetBoolFromStr(s string) bool {
 	return b
 }
 
+//GetIntFromArgs gets an integer from arguments by name
 func GetIntFromArgs(arguments map[string]interface{}, name string, _default int) int {
 	if arguments[name] == nil {
 		return _default
 	}
-	val_str := arguments[name].(string)
-	return GetIntFromStr(val_str)
+	valStr := arguments[name].(string)
+	return GetIntFromStr(valStr)
 }
 
+//GetBoolFromArgs gets a boolean from arguments by name
 func GetBoolFromArgs(arguments map[string]interface{}, name string, _default bool) bool {
 	if arguments[name] == nil {
 		return _default
 	}
-	val_str := arguments[name].(string)
-	return GetBoolFromStr(val_str)
+	valStr := arguments[name].(string)
+	return GetBoolFromStr(valStr)
 }
 
+//ConvertMaps creates a map from a string representation of the maps itself.
+//TODO: document or replace with something more
 func ConvertMaps(input string) map[string]string {
-	var labels map[string]string = make(map[string]string)
+	var labels = make(map[string]string)
 	if input != "" {
 		labelsArray := strings.Split(input, " ")
 		for i := 0; i < len(labelsArray); i++ {

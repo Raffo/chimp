@@ -13,21 +13,22 @@ import (
 	"strings"
 
 	printer "github.com/olekukonko/tablewriter"
+	konfig "github.com/zalando-techmonkeys/chimp/conf/client"
+	. "github.com/zalando-techmonkeys/chimp/types"
 	"golang.org/x/crypto/ssh/terminal"
-	"golang.org/x/oauth2"
 )
 
+//Client is the struct for accessing client functionalities
 type Client struct {
-	Host           string
-	Port           int
-	AccessToken    string
-	Oauth2Enabled  bool
-	OAuth2Endpoint oauth2.Endpoint
-	Scheme         string
+	Config      *konfig.ClientConfig
+	AccessToken string
+	Scheme      string
+	Clusters    []string
 }
 
 var homeDirectories = []string{"HOME", "USERPROFILES"}
 
+//RenewAccessToken is used to get a new Oauth2 access token
 func (bc *Client) RenewAccessToken(username string) {
 	if username == "" {
 		reader := bufio.NewReader(os.Stdin)
@@ -42,15 +43,15 @@ func (bc *Client) RenewAccessToken(username string) {
 		os.Exit(1)
 	}
 	password := strings.TrimSpace(string(bytePassword))
-	u, err := url.Parse(bc.OAuth2Endpoint.AuthURL)
+	u, err := url.Parse(bc.Config.OauthURL)
 	if err != nil {
-		fmt.Printf("ERR: Could not parse given Auth URL: %s\n", bc.OAuth2Endpoint.AuthURL)
+		fmt.Printf("ERR: Could not parse given Auth URL: %s\n", bc.Config.OauthURL)
 		os.Exit(1)
 	}
-	auth_url_str := fmt.Sprintf("https://%s%s%s%s", u.Host, u.Path, u.RawQuery, u.Fragment)
-	fmt.Printf("Getting token from URL: %s\n", auth_url_str)
+	authURLStr := fmt.Sprintf("https://%s%s%s%s", u.Host, u.Path, u.RawQuery, u.Fragment)
+	fmt.Printf("Getting token from URL: %s\n", authURLStr)
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", auth_url_str, nil)
+	req, err := http.NewRequest("GET", authURLStr, nil)
 	req.SetBasicAuth(username, password)
 	res, err := client.Do(req)
 
@@ -85,7 +86,7 @@ func (bc *Client) RenewAccessToken(username string) {
 
 //GetAccessToken sets the access token inside the request
 func (bc *Client) GetAccessToken(username string) {
-	if bc.Oauth2Enabled {
+	if bc.Config.Oauth2Enabled {
 		//before trying to get the token I try to read the old one
 		var homeDir string
 		for _, home := range homeDirectories {
@@ -106,12 +107,14 @@ func (bc *Client) GetAccessToken(username string) {
 	}
 }
 
-func (bc *Client) buildDeploymentURL(name string, params map[string]string) string {
+func (bc *Client) buildDeploymentURL(name string, params map[string]string, cluster string) string {
 	u := new(url.URL)
 	u.Scheme = bc.Scheme
-	u.Host = net.JoinHostPort(bc.Host, strconv.Itoa(bc.Port))
-	if bc.Scheme == "https" && bc.Port == 443 {
-		u.Host = bc.Host
+	host := bc.Config.Clusters[cluster].IP
+	port := bc.Config.Clusters[cluster].Port
+	u.Host = net.JoinHostPort(host, strconv.Itoa(port))
+	if bc.Scheme == "https" && port == 443 {
+		u.Host = host
 	}
 	u.Path = path.Join("/deployments", name)
 	q := u.Query()
@@ -122,191 +125,217 @@ func (bc *Client) buildDeploymentURL(name string, params map[string]string) stri
 	return u.String()
 }
 
-func (bc *Client) buildDeploymentReplicasURL(name string, replicas int) string {
+func (bc *Client) buildDeploymentReplicasURL(name string, replicas int, cluster string) string {
 	u := new(url.URL)
 	u.Scheme = bc.Scheme
-	u.Host = net.JoinHostPort(bc.Host, strconv.Itoa(bc.Port))
-	if bc.Scheme == "https" && bc.Port == 443 {
-		u.Host = bc.Host
+	host := bc.Config.Clusters[cluster].IP
+	port := bc.Config.Clusters[cluster].Port
+	u.Host = net.JoinHostPort(host, strconv.Itoa(port))
+	if bc.Scheme == "https" && port == 443 {
+		u.Host = host
 	}
 	u.Path = path.Join("/deployments", name, "replicas", strconv.Itoa(replicas))
 	return u.String()
 }
 
+//DeleteDeploy is used to delete a deployment from the cluster/server
 func (bc *Client) DeleteDeploy(name string) {
-	url := bc.buildDeploymentURL(name, nil)
-	_, res, err := bc.makeRequest("DELETE", url, nil)
-	if err != nil {
-		fmt.Println(errorMessageBuilder("Cannot delete deployment", err))
-		return
-	}
-	if checkStatusOK(res.StatusCode) {
-		if checkAuthOK(res.StatusCode) {
-			if res.StatusCode >= 400 && res.StatusCode <= 499 {
-				e := Error{}
-				unmarshalResponse(res, &e)
-				fmt.Printf("Cannot delete deployment: %s\n", e.Err)
+	for _, clusterName := range bc.Clusters {
+		url := bc.buildDeploymentURL(name, nil, clusterName)
+		_, res, err := bc.makeRequest("DELETE", url, nil)
+		if err != nil {
+			fmt.Println(errorMessageBuilder("Cannot delete deployment", err))
+			continue
+		}
+		if checkStatusOK(res.StatusCode) {
+			if checkAuthOK(res.StatusCode) {
+				if res.StatusCode >= 400 && res.StatusCode <= 499 {
+					e := Error{}
+					unmarshalResponse(res, &e)
+					fmt.Printf("Cannot delete deployment: %s\n", e.Err)
+				} else {
+					fmt.Println("Delete operation successful")
+				}
 			} else {
-				fmt.Println("Delete operation successful")
+				handleAuthNOK(res.StatusCode)
 			}
 		} else {
-			handleAuthNOK(res.StatusCode)
+			handleStatusNOK(res.StatusCode)
 		}
-	} else {
-		handleStatusNOK(res.StatusCode)
 	}
 }
 
+//InfoDeploy is used the get the information for a currently running deployment
 func (bc *Client) InfoDeploy(name string, verbose bool) {
-	url := bc.buildDeploymentURL(name, nil)
-	_, res, err := bc.makeRequest("GET", url, nil)
-	if err != nil {
-		fmt.Println(errorMessageBuilder("Cannot get info for deploy", err))
-		return
-	}
-
-	if checkStatusOK(res.StatusCode) {
-		if checkAuthOK(res.StatusCode) {
-			if res.StatusCode >= 400 && res.StatusCode <= 499 {
-				e := Error{}
-				unmarshalResponse(res, &e)
-				fmt.Printf("Cannot get info for deployment: %s\n", e.Err)
+	for _, clusterName := range bc.Clusters {
+		fmt.Println(clusterName)
+		url := bc.buildDeploymentURL(name, nil, clusterName)
+		_, res, err := bc.makeRequest("GET", url, nil)
+		if err != nil {
+			fmt.Println(errorMessageBuilder("Cannot get info for deploy", err))
+			continue
+		}
+		if checkStatusOK(res.StatusCode) {
+			if checkAuthOK(res.StatusCode) {
+				if res.StatusCode >= 400 && res.StatusCode <= 499 {
+					e := Error{}
+					unmarshalResponse(res, &e)
+					fmt.Printf("Cannot get info for deployment: %s\n", e.Err)
+				} else {
+					artifact := Artifact{}
+					unmarshalResponse(res, &artifact)
+					printInfoTable(verbose, artifact)
+				}
 			} else {
-				artifact := Artifact{}
-				unmarshalResponse(res, &artifact)
-				printInfoTable(verbose, artifact)
+				handleAuthNOK(res.StatusCode)
 			}
 		} else {
-			handleAuthNOK(res.StatusCode)
+			handleStatusNOK(res.StatusCode)
 		}
-	} else {
-		handleStatusNOK(res.StatusCode)
 	}
 }
 
+//ListDeploy is used to get a list of the running deployments in the cluster
 func (bc *Client) ListDeploy(all bool) {
-	var query map[string]string = nil
-	if all {
-		query = map[string]string{"all": "true"}
-	}
-	url := bc.buildDeploymentURL("", query)
-	_, res, err := bc.makeRequest("GET", url, nil)
-	if err != nil {
-		fmt.Println(errorMessageBuilder("Cannot list deployments", err))
-		return
-	}
-
-	if checkStatusOK(res.StatusCode) {
-		if checkAuthOK(res.StatusCode) {
-			if res.StatusCode >= 400 && res.StatusCode <= 499 {
-				e := Error{}
-				err = unmarshalResponse(res, &e)
-				if err != nil {
-					fmt.Printf("Cannot get list of deployments: %s\n", err.Error())
-					return
+	for _, clusterName := range bc.Clusters {
+		fmt.Println(clusterName)
+		var query map[string]string
+		if all {
+			query = map[string]string{"all": "true"}
+		}
+		url := bc.buildDeploymentURL("", query, clusterName)
+		_, res, err := bc.makeRequest("GET", url, nil)
+		if err != nil {
+			fmt.Println(errorMessageBuilder("Cannot list deployments", err))
+			continue
+		}
+		if checkStatusOK(res.StatusCode) {
+			if checkAuthOK(res.StatusCode) {
+				if res.StatusCode >= 400 && res.StatusCode <= 499 {
+					e := Error{}
+					err = unmarshalResponse(res, &e)
+					if err != nil {
+						fmt.Printf("Cannot get list of deployments: %s\n", err.Error())
+						continue
+					}
+					fmt.Printf("Cannot get list of deployments: %s\n", e.Err)
+				} else {
+					var ld ListDeployments
+					unmarshalResponse(res, &ld)
+					fmt.Printf("List of deployed applications: \n")
+					for _, name := range ld.Deployments {
+						fmt.Printf("\t%s\n", name)
+					}
 				}
-				fmt.Printf("Cannot get list of deployments: %s\n", e.Err)
 			} else {
-				var ld ListDeployments
-				unmarshalResponse(res, &ld)
-				fmt.Printf("List of deployed applications: \n")
-				for _, name := range ld.Deployments {
-					fmt.Printf("\t%s\n", name)
-				}
+				handleAuthNOK(res.StatusCode)
 			}
 		} else {
-			handleAuthNOK(res.StatusCode)
+			handleStatusNOK(res.StatusCode)
 		}
-	} else {
-		handleStatusNOK(res.StatusCode)
 	}
 }
 
+//CreateDeploy is used to deploy a new app. If an app with the same name is already deployed,
+//an error will be returned.
 func (bc *Client) CreateDeploy(cmdReq *CmdClientRequest) {
-	deploy := map[string]interface{}{"Name": cmdReq.Name, "Ports": cmdReq.Ports, "Labels": cmdReq.Labels,
-		"ImageURL": cmdReq.ImageURL, "Env": cmdReq.Env, "Replicas": cmdReq.Replicas, "CPULimit": cmdReq.CPULimit,
-		"MemoryLimit": cmdReq.MemoryLimit, "Force": cmdReq.Force, "Volumes": cmdReq.Volumes}
-	url := bc.buildDeploymentURL("", nil)
-	_, res, err := bc.makeRequest("POST", url, deploy)
-	if err != nil {
-		fmt.Println(errorMessageBuilder("Deploy unsuccessful", err))
-		return
-	}
-	if checkStatusOK(res.StatusCode) {
-		if checkAuthOK(res.StatusCode) {
-			if res.StatusCode >= 400 && res.StatusCode <= 499 {
-				e := Error{}
-				unmarshalResponse(res, &e)
-				fmt.Printf("Deploy unsuccessful: %s\n", e.Err)
+	//for each datacenter, create the app
+	for _, clusterName := range bc.Clusters {
+		fmt.Println(clusterName)
+		deploy := map[string]interface{}{"Name": cmdReq.Name, "Ports": cmdReq.Ports, "Labels": cmdReq.Labels,
+			"ImageURL": cmdReq.ImageURL, "Env": cmdReq.Env, "Replicas": cmdReq.Replicas, "CPULimit": cmdReq.CPULimit,
+			"MemoryLimit": cmdReq.MemoryLimit, "Force": cmdReq.Force, "Volumes": cmdReq.Volumes}
+		url := bc.buildDeploymentURL("", nil, clusterName)
+		_, res, err := bc.makeRequest("POST", url, deploy)
+		if err != nil {
+			fmt.Println(errorMessageBuilder("Deploy unsuccessful", err))
+			continue
+		}
+		if checkStatusOK(res.StatusCode) {
+			if checkAuthOK(res.StatusCode) {
+				if res.StatusCode >= 400 && res.StatusCode <= 499 {
+					e := Error{}
+					unmarshalResponse(res, &e)
+					fmt.Printf("Deploy unsuccessful: %s\n", e.Err)
+				} else {
+					fmt.Println("Application successfully deployed.")
+				}
 			} else {
-				fmt.Println("Application successfully deployed.")
+				handleAuthNOK(res.StatusCode)
 			}
 		} else {
-			handleAuthNOK(res.StatusCode)
+			handleStatusNOK(res.StatusCode)
 		}
-	} else {
-		handleStatusNOK(res.StatusCode)
+
 	}
+
 }
 
+//UpdateDeploy is used to update an already deployed app
 func (bc *Client) UpdateDeploy(cmdReq *CmdClientRequest) {
-	deploy := map[string]interface{}{"Name": cmdReq.Name, "Ports": cmdReq.Ports, "Labels": cmdReq.Labels,
-		"ImageURL": cmdReq.ImageURL, "Env": cmdReq.Env, "Replicas": cmdReq.Replicas, "CPULimit": cmdReq.CPULimit,
-		"MemoryLimit": cmdReq.MemoryLimit, "Force": cmdReq.Force}
-	url := bc.buildDeploymentURL(cmdReq.Name, nil)
-	_, res, err := bc.makeRequest("PUT", url, deploy)
-	if err != nil {
-		fmt.Println(errorMessageBuilder("Deploy unsuccessful", err))
-		return
-	}
-	if checkStatusOK(res.StatusCode) {
-		if checkAuthOK(res.StatusCode) {
-			if res.StatusCode >= 400 && res.StatusCode <= 499 {
-				e := Error{}
-				unmarshalResponse(res, &e)
-				fmt.Printf("Update unsuccessful: %s\n", e.Err)
+	for _, clusterName := range bc.Clusters {
+		fmt.Println(clusterName)
+		deploy := map[string]interface{}{"Name": cmdReq.Name, "Ports": cmdReq.Ports, "Labels": cmdReq.Labels,
+			"ImageURL": cmdReq.ImageURL, "Env": cmdReq.Env, "Replicas": cmdReq.Replicas, "CPULimit": cmdReq.CPULimit,
+			"MemoryLimit": cmdReq.MemoryLimit, "Force": cmdReq.Force}
+		url := bc.buildDeploymentURL(cmdReq.Name, nil, clusterName)
+		_, res, err := bc.makeRequest("PUT", url, deploy)
+		if err != nil {
+			fmt.Println(errorMessageBuilder("Deploy unsuccessful", err))
+			continue
+		}
+		if checkStatusOK(res.StatusCode) {
+			if checkAuthOK(res.StatusCode) {
+				if res.StatusCode >= 400 && res.StatusCode <= 499 {
+					e := Error{}
+					unmarshalResponse(res, &e)
+					fmt.Printf("Update unsuccessful: %s\n", e.Err)
+				} else {
+					fmt.Println("Application successfully updated.")
+				}
 			} else {
-				fmt.Println("Application successfully updated.")
+				handleAuthNOK(res.StatusCode)
 			}
 		} else {
-			handleAuthNOK(res.StatusCode)
+			handleStatusNOK(res.StatusCode)
 		}
-	} else {
-		handleStatusNOK(res.StatusCode)
 	}
 }
 
+//Scale is used to scale an existing application to the number of replicas specified
 func (bc *Client) Scale(name string, replicas int) {
-	deploy := map[string]interface{}{"Name": name, "Replicas": replicas}
-	url := bc.buildDeploymentReplicasURL(name, replicas)
-	_, res, err := bc.makeRequest("PATCH", url, deploy)
-	if err != nil {
-		fmt.Println(errorMessageBuilder("Cannot scale", err))
-		return
-	}
-	if checkStatusOK(res.StatusCode) {
-		if checkAuthOK(res.StatusCode) {
-			if res.StatusCode >= 400 && res.StatusCode <= 499 {
-				e := Error{}
-				unmarshalResponse(res, &e)
-				fmt.Printf("Scale unsuccessful: %s\n", e.Err)
+	for _, clusterName := range bc.Clusters {
+		fmt.Println(clusterName)
+		deploy := map[string]interface{}{"Name": name, "Replicas": replicas}
+		url := bc.buildDeploymentReplicasURL(name, replicas, clusterName)
+		_, res, err := bc.makeRequest("PATCH", url, deploy)
+		if err != nil {
+			fmt.Println(errorMessageBuilder("Cannot scale", err))
+			continue
+		}
+		if checkStatusOK(res.StatusCode) {
+			if checkAuthOK(res.StatusCode) {
+				if res.StatusCode >= 400 && res.StatusCode <= 499 {
+					e := Error{}
+					unmarshalResponse(res, &e)
+					fmt.Printf("Scale unsuccessful: %s\n", e.Err)
+				} else {
+					fmt.Println("Application scaled.")
+				}
 			} else {
-				fmt.Println("Application scaled.")
+				handleAuthNOK(res.StatusCode)
 			}
 		} else {
-			handleAuthNOK(res.StatusCode)
+			handleStatusNOK(res.StatusCode)
 		}
-	} else {
-		handleStatusNOK(res.StatusCode)
 	}
 }
 
 func errorMessageBuilder(message string, err error) string {
 	if strings.Contains(err.Error(), "tls: oversized") {
 		return fmt.Sprintf("%s, caused by: cannot estabilish an https connection.", message)
-	} else {
-		return fmt.Sprintf("%s, caused by: %s", message, err.Error())
 	}
+	return fmt.Sprintf("%s, caused by: %s", message, err.Error())
 }
 
 func printInfoTable(verbose bool, artifact Artifact) {
@@ -314,8 +343,8 @@ func printInfoTable(verbose bool, artifact Artifact) {
 	//iterate table and print
 	table.SetHeader([]string{"Name", "Status", "Endpoints", "Num Replicas", "CPUs", "Memory", "Last Message"})
 	row := []string{}
-	var endpoints string = ""
-	var ports string = ""
+	var endpoints string
+	var ports string
 	for _, replica := range artifact.RunningReplicas {
 		endpoints = endpoints + fmt.Sprintf("%s\n", replica.Endpoints)
 		for _, port := range replica.Ports {
@@ -390,31 +419,4 @@ func printLogs(artifact Artifact) {
 	}
 	containerTable.Render()
 
-}
-
-func (bc *Client) LogInfo(name string) {
-	url := bc.buildDeploymentURL(name, nil)
-	_, res, err := bc.makeRequest("GET", url, nil)
-	if err != nil {
-		fmt.Println(errorMessageBuilder("Cannot get logs for deploy", err))
-		return
-	}
-
-	if checkStatusOK(res.StatusCode) {
-		if checkAuthOK(res.StatusCode) {
-			if res.StatusCode >= 400 && res.StatusCode <= 499 {
-				e := Error{}
-				unmarshalResponse(res, &e)
-				fmt.Printf("Cannot get info for deployment: %s\n", e.Err)
-			} else {
-				artifact := Artifact{}
-				unmarshalResponse(res, &artifact)
-				printLogs(artifact)
-			}
-		} else {
-			handleAuthNOK(res.StatusCode)
-		}
-	} else {
-		handleStatusNOK(res.StatusCode)
-	}
 }

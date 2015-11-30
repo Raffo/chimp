@@ -46,13 +46,13 @@ func TestMapMemory(t *testing.T) {
 
 func TestBuildTeamLabel(t *testing.T) {
 	fakeContext := gin.Context{}
-	expectedUid := "rdifazio"
+	expectedUID := "rdifazio"
 	expectedTeam := "TechMonkeys"
-	fakeContext.Set("uid", expectedUid)
+	fakeContext.Set("uid", expectedUID)
 	fakeContext.Set("team", expectedTeam)
 	team, uid := buildTeamLabel(&fakeContext)
-	if uid != expectedUid || team != expectedTeam {
-		fmt.Printf("Expected: %s - %s, got: %s, %s", expectedUid, expectedTeam, uid, team)
+	if uid != expectedUID || team != expectedTeam {
+		fmt.Printf("Expected: %s - %s, got: %s, %s", expectedUID, expectedTeam, uid, team)
 		t.FailNow()
 	}
 }
