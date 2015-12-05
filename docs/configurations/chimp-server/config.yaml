@@ -11,6 +11,10 @@ tlsCertfilePath: /path/to/your/certfile
 tlsKeyfilePath: /path/to/your/keyfile
 logFlushInterval: 5 #in seconds
 port: 8082
+MarathonAuth:
+  enabled: true
+  MarathonHttpUser: MARATHON_USER
+  MarathonHttpPassword: MARATHON_PASSWORD
 AuthorizedTeams:
   - Realm: teams
     Uid: Techmonkeys

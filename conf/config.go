@@ -36,6 +36,7 @@ type Config struct {
 	AuthorizedUsers   []AccessTuple
 	VersionBuildStamp string
 	VersionGitHash    string
+	MarathonAuth      MarathonAuth
 }
 
 //AccessTuple reprsent an entry for Auth
@@ -48,6 +49,13 @@ type AccessTuple struct {
 //ConfigError contains the error while unmarshalling the config file
 type ConfigError struct {
 	Message string
+}
+
+//MarathonAuth is used to enable/disable marathon api auth and configure user/password used for that
+type MarathonAuth struct {
+	Enabled              bool
+	MarathonHttpUser     string
+	MarathonHttpPassword string
 }
 
 //shared state for configuration
