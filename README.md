@@ -177,7 +177,7 @@ chimp scale YOUR_APP_NAME NUMBER_OF_REPLICAS
 * Issues: Just create issues on github
 * Enhancements/Bugfixes: Pull requests are welcome
 * get in contact: team-techmonkeys@zalando.de
-* see [MAINTAINERS](https://github.com/zalando-techmonkeys/gin-gomonitor/blob/master/MAINTAINERS)
+* see [MAINTAINERS](MAINTAINERS)
 file.
 
 ## License
