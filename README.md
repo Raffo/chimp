@@ -18,7 +18,7 @@ can install it in any way you like, we strongly suggest you to use version 1.5.X
 
 You then need to configure Go:
 
-````
+````shell
 #configure GOPATH
 mkdir $HOME/go
 export GOPATH=$HOME/go
@@ -28,10 +28,10 @@ Please remember that the exported variables will only be available for your
 current session. Add them to your bashrc/zshrc if you want to make them
 persistent.
 
-The source code of this repository must be put in the ```$GOPATH/src folder```.
+The source code of this repository must be put into the ```$GOPATH/src folder```.
 This can be done with the following commands:
 
-````
+````shell
 mkdir -p $GOPATH/src/github.com/zalando-techmonkeys/
 cd $GOPATH/src/github.com/zalando-techmonkeys/
 git clone REPO_URL
@@ -42,26 +42,29 @@ cd chimp
 
 Install [godep](https://github.com/tools/godep) for dependency management.
 
-````
+````shell
 #install godep if you don't have it
 go get github.com/tools/godep
+
 #install required dependencies
 godep restore
+
 #install to $GOBIN
 godep go install github.com/zalando-techmonkeys/chimp/...
+
 #for tagging the build, both server and cli:
 godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`"   github.com/zalando-techmonkeys/chimp/...
 ````
 
 ### Configuration
 To choose a backend (marathon is the only one supported), put a yaml configuration
-file named [config.yaml](chimp/docs/configurations/chimp-server/config.yaml) into: /etc/chimp-server/ or $HOME/.config/chimp-server/.
-The endpoint of the chosen backend system is also specified in the config.yaml file. Please refer to the example for the supported options.
+file named [config.yaml](chimp/docs/configurations/chimp-server/config.yaml) into: ```/etc/chimp-server/``` or ```$HOME/.config/chimp-server/```.
+The endpoint of the chosen backend system is also specified in the ```config.yaml``` file. Please refer to the example for an overview of supported options.
 
 ### Usage
 Once chimp is installed, the API server can be simply run as:
 
-````
+````shell
 # run service
 chimp -logtostderr -debug
 ````
@@ -82,20 +85,23 @@ The cli allows you to do four operations:
 
 Install [godep](https://github.com/tools/godep) for dependency management.
 
-````
+````shell
 #install godep if you don't have it
 go get github.com/tools/godep
+
 #install required dependencies
 godep restore
+
 #install to $GOBIN
 godep go install github.com/zalando-techmonkeys/chimp/...
+
 #for tagging the build, both server and cli:
 godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`"   github.com/zalando-techmonkeys/chimp/...
 ````
 
 ### Configuration
-To setup the chimp cli put a yaml configuration file named [config.yaml](chimp/docs/configurations/chimp/config.yaml) into: /etc/chimp/ or $HOME/.config/chimp/ In docs/configurations/chimp/config.yaml you can find an example of such a file where you can set the server and the port to be used to communicate with chimp's server.
-Please note that command arguments to chimp command line will override the configuration set in the config.yaml file.
+To setup the chimp cli put a yaml configuration file named [config.yaml](chimp/docs/configurations/chimp/config.yaml) into: ```/etc/chimp/``` or ```$HOME/.config/chimp/``` In ```docs/configurations/chimp/config.yaml``` you can find an example of such a file where you can set the server and the port to be used to communicate with chimp's server.
+Please note that command arguments to chimp command line will override the configuration set in the ```config.yaml``` file.
 
 
 ### Multi cluster support
@@ -111,7 +117,7 @@ Be sure to use the right parameters that can be checked with ```chimp --help```.
 ### Login
 You can use chimp login to obtain a valid token for the built-in OAuth2 support. Please note that this is not required if
 the server is not configured to use OAuth2.
-````
+````shell
 #this will ask for your password
 chimp login USERNAME
 ````
@@ -119,7 +125,7 @@ chimp login USERNAME
 ### Create
 Please populate the svcport with the port you want to expose for your application and the name for the name of your app. Names must be exclusive for now.
 
-````
+````shell
 # example params --url=pierone.stups.zalan.do/cat/cat-hello-aws:0.0.1 --name=test
 chimp create YOURAPPNAME YOUR_PIERONE_URL --port=YOUR_PORT --cpu=NUM_CORES --memory=MEMORY --http-only --reqserver=localhost --reqport=8080
 ````
@@ -127,7 +133,7 @@ chimp create YOURAPPNAME YOUR_PIERONE_URL --port=YOUR_PORT --cpu=NUM_CORES --mem
 Create also supports a ```--file``` option that allow you to pass the parameters in a yaml file. The option require you to provide the full path for the file.
 The following is an example file:
 
-````
+````yaml
 ---
 DeployRequest:
   - name: demo
@@ -171,7 +177,7 @@ chimp scale YOUR_APP_NAME NUMBER_OF_REPLICAS
 * Issues: Just create issues on github
 * Enhancements/Bugfixes: Pull requests are welcome
 * get in contact: team-techmonkeys@zalando.de
-* see [MAINTAINERS](https://github.com/zalando-techmonkeys/gin-gomonitor/blob/master/MAINTAINERS)
+* see [MAINTAINERS](MAINTAINERS)
 file.
 
 ## License
