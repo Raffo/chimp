@@ -15,21 +15,8 @@ import (
 	"github.com/zalando-techmonkeys/chimp/marathon"
 	mock "github.com/zalando-techmonkeys/chimp/mockbackend"
 	. "github.com/zalando-techmonkeys/chimp/types"
+	"github.com/zalando-techmonkeys/chimp/validators"
 )
-
-//DeployRequest is the struct used to represent a request to deploy
-type DeployRequest struct {
-	Name        string            // "shop"
-	Labels      map[string]string // {"env": "live", "project": "shop"}
-	Env         map[string]string // {"FOO": "bar", ..}
-	Replicas    int               // 4, creates 4 given container
-	Ports       []int
-	ImageURL    string
-	CPULimit    int
-	MemoryLimit string
-	Force       bool
-	Volumes     []*Volume
-}
 
 //Backend contains the current backend
 type Backend struct {
@@ -107,6 +94,14 @@ func deployInfo(ginCtx *gin.Context) {
 
 func deployCreate(ginCtx *gin.Context) {
 	givenDeploy, err := commonDeploy(ginCtx)
+	validator := validators.New()
+	valid, err := validator.Validate(givenDeploy)
+	if !valid {
+		glog.Errorf("Invalid request, validation not passed.")
+		ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request."})
+		ginCtx.Error(errors.New("Invalid request"))
+		return
+	}
 	team, uid := buildTeamLabel(ginCtx)
 	if givenDeploy.Labels == nil {
 		givenDeploy.Labels = make(map[string]string, 2)
@@ -151,6 +146,14 @@ func deployCreate(ginCtx *gin.Context) {
 
 func deployUpsert(ginCtx *gin.Context) {
 	deploy, err := commonDeploy(ginCtx)
+	validator := validators.New()
+	valid, err := validator.Validate(deploy)
+	if !valid {
+		glog.Errorf("Invalid request, validation not passed.")
+		ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request."})
+		ginCtx.Error(errors.New("Invalid request"))
+		return
+	}
 	ginCtx.Set("data", deploy)
 	if err != nil {
 		glog.Errorf("Could not update deploy, caused by: %s", err.Error())
