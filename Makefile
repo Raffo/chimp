@@ -8,8 +8,8 @@ prepare: clean
 	mkdir -p build/osx
 
 build.local: prepare
-	godep go build -o build/chimp-server -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`" -tags zalandoValidation  ./cmd/chimp-server
-	godep go build -o build/chimp -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`" -tags zalandoValidation  ./cmd/chimp
+	go build -o build/chimp-server -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`" -tags zalandoValidation  ./cmd/chimp-server
+	go build -o build/chimp -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`" -tags zalandoValidation  ./cmd/chimp
 
 build.linux: prepare
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 godep go build -o build/linux/chimp-server -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`" -tags zalandoValidation ./cmd/chimp-server
