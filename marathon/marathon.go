@@ -39,7 +39,12 @@ const (
 // groups, deployment, subscriptions, ...
 func initMarathonClient() marathon.Marathon {
 	config := marathon.NewDefaultConfig()
-	config.URL = conf.New().Endpoint
+	chimpConfig := conf.New()
+	config.URL = chimpConfig.Endpoint
+	if chimpConfig.MarathonAuth.Enabled {
+		config.HttpBasicAuthUser = chimpConfig.MarathonAuth.MarathonHttpUser
+		config.HttpBasicPassword = chimpConfig.MarathonAuth.MarathonHttpPassword
+	}
 	client, err := marathon.NewClient(config)
 	if err != nil {
 		glog.Fatalf("Failed to create a client for marathon, error: %s", err)

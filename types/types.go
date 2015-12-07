@@ -120,3 +120,17 @@ type CmdClientRequest struct {
 type Error struct {
 	Err string `json:"error"`
 }
+
+//DeployRequest is the struct used to represent a request to deploy
+type DeployRequest struct {
+	Name        string            // "shop"
+	Labels      map[string]string // {"env": "live", "project": "shop"}
+	Env         map[string]string // {"FOO": "bar", ..}
+	Replicas    int               // 4, creates 4 given container
+	Ports       []int
+	ImageURL    string
+	CPULimit    int
+	MemoryLimit string
+	Force       bool
+	Volumes     []*Volume
+}
