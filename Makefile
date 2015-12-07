@@ -22,4 +22,3 @@ build.linux: prepare
 build.osx: prepare
 	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 godep go build -o build/osx/chimp-server -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`" -tags zalandoValidation ./cmd/chimp-server
 	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 godep go build -o build/osx/chimp -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`" -tags zalandoValidation ./cmd/chimp
-

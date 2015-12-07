@@ -1,3 +1,5 @@
+# FIXME currently outdated
+
 # this is an example of the Uber API
 # as a demonstration of an API spec in YAML
 swagger: '2.0'
@@ -25,7 +27,7 @@ paths:
           schema:
             allOf:
               - $ref: '#/definitions/ListDeployments'
-          
+
     post:
       summary: Create a new deployment.
       parameters:
@@ -37,10 +39,10 @@ paths:
             $ref: '#/definitions/DeployRequest'
       responses:
         '200':
-          description: Success - A new app is created though no guarantee is giving for the instances to be running. 
-        '400': 
+          description: Success - A new app is created though no guarantee is giving for the instances to be running.
+        '400':
           description: Error - some input parameters where invalid
-        '406': 
+        '406':
           description: Error - Cannot deploy the application because of a backend error
   '/deployments/{deployment-name}':
     get:
@@ -50,7 +52,7 @@ paths:
       parameters:
         - in: path
           name: deployment-name
-          description: Name of application 
+          description: Name of application
           required: true
           type: string
       responses:
@@ -97,7 +99,7 @@ paths:
         '200':
           description: Success - application is scheduled for deletion
         '400':
-          description: Error - backend error 
+          description: Error - backend error
 
   '/deployments/{deployment-name}/replicas/{num}':
     patch:
@@ -119,21 +121,21 @@ paths:
           description: Success - application is scaled
         '400':
           description: Error - cannot scale the application
-          
-          
-          
-          
-          
-          
-          
+
+
+
+
+
+
+
 definitions:
 
-# this is how everything is returned now. Data contains the content. 
+# this is how everything is returned now. Data contains the content.
   generalResponseStructure:
     properties:
       cmd:
         type: string
-        description: action executed... is this against REST? 
+        description: action executed... is this against REST?
       data:
         type: object
         description: the content
@@ -142,27 +144,27 @@ definitions:
         description:  this is used only in case of errors
       title:
         type: string
-        description: message coming from backend 
+        description: message coming from backend
 
   ListDeployments:
     type: array
     items:
       type: string
-  
+
   DeploymentObject:  # artifact in types.go
     type: object
     description: The main content
     properties:
-      name: 
+      name:
         type: string
         description: Name of the application deployed
       message:
         type: string
-        description: A message from the backend regarding the current status of the deployment # WHERE IS THIS USED? 
-      status: 
+        description: A message from the backend regarding the current status of the deployment # WHERE IS THIS USED?
+      status:
         type: string
-        description: Short description of the status of the current 
-      labels: 
+        description: Short description of the status of the current
+      labels:
         type: array  #this is actually a map
         items:
           type: string
@@ -170,9 +172,9 @@ definitions:
         type: array #this is actually a map
         items:
           type: string
-      runningReplicas: 
+      runningReplicas:
         type: array
-        items: 
+        items:
           $ref: '#/definitions/Replica'
       requestedReplicas:
         type: integer
@@ -180,7 +182,7 @@ definitions:
         type: number
       Memory:
         type: number
-      
+
   Container:
     type: object
     properties:
@@ -219,9 +221,9 @@ definitions:
     properties:
       port:
         type: integer
-      protocol: 
+      protocol:
         type: string
-  
+
   DeployRequest:
     type: object
     properties:
@@ -240,7 +242,7 @@ definitions:
       labels:
         type: array #this is actually a map
         items:
-          type: string 
+          type: string
       env:
         type: array #this is actually a map
         items:
@@ -249,14 +251,5 @@ definitions:
         type: integer
       MemoryLimit:
         type: string
-      Force: 
-        type: boolean 
-      
-      
- 
-
-        
-    
-  
-      
-  
+      Force:
+        type: boolean
