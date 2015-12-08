@@ -58,6 +58,7 @@ type Artifact struct {
 	RequestedReplicas int               `json:"requestedReplicas"`
 	CPUS              float64           `json:"cpus"`
 	Memory            float64           `json:"memory"`
+	Endpoint          string            `json:"endpoint"`
 }
 
 //PortType represents the port and protocol used

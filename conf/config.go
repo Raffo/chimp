@@ -37,6 +37,7 @@ type Config struct {
 	VersionBuildStamp string
 	VersionGitHash    string
 	MarathonAuth      MarathonAuth
+	EndpointPattern   string
 }
 
 //AccessTuple reprsent an entry for Auth

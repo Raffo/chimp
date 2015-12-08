@@ -140,7 +140,13 @@ func (mb MarathonBackend) GetApp(req *ArtifactRequest) (*Artifact, error) {
 		replicas = append(replicas, &replica)
 	}
 
-	//builds the log information
+	var ep string
+	if strings.HasPrefix(application.ID, "/") {
+		ep = application.ID[1:len(application.ID)]
+	} else {
+		ep = application.ID
+	}
+	endpoint := fmt.Sprintf(conf.New().EndpointPattern, ep)
 
 	artifact := Artifact{
 		Name:              application.ID,
@@ -152,6 +158,7 @@ func (mb MarathonBackend) GetApp(req *ArtifactRequest) (*Artifact, error) {
 		RequestedReplicas: application.Instances,
 		CPUS:              application.CPUs,
 		Memory:            application.Mem,
+		Endpoint:          endpoint,
 	}
 
 	return &artifact, nil
