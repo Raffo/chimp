@@ -40,8 +40,8 @@ func main() {
 	usage := fmt.Sprintf(`Usage:
   chimp -h | --help
   chimp --version
-  chimp create (<filename> | <name> <url> --port=<svcport> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
-  chimp update (<filename> | <name> <url> --port=<svcport> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
+  chimp create (<filename> | <name> <url> --port=<port> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
+  chimp update (<filename> | <name> <url> --port=<port> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
   chimp scale (<name>) (<replicas>) [options]
   chimp delete (<name>) [options]
   chimp info (<name>) [options]
@@ -52,7 +52,6 @@ func main() {
 Options:
   --label=<k=v>  Labels of the deploy artifact, has to be a dict like k=v
   --env=<k=v>  Environment variables of the deploy artifact, has to be a dict like k=v
-  --svcport=<svcport>  Port to listen on
   --http-only  If not set we use https as default to query deploy requests
   --oauth2  OAuth2 enable
   --oauth2-token=<access_token>  OAuth2 AccessToken (no user, password required)
@@ -191,7 +190,7 @@ func buildRequest(arguments map[string]interface{}) (*ChimpDefinition, error) {
 		envVars := ConvertMaps(envStr)
 		replicas := GetIntFromArgs(arguments, "--replicas", 1)
 		imageURL := GetStringFromArgs(arguments, "<url>", "")
-		svcport := GetIntFromArgs(arguments, "--svcport", 8080)
+		svcport := GetIntFromArgs(arguments, "--port", 8080)
 		cpuNumber := GetIntFromArgs(arguments, "--cpu", 0)            //unlimited or backend decided
 		memoryLimit := GetStringFromArgs(arguments, "--memory", "0M") //unlimited or backend decided
 
