@@ -58,7 +58,7 @@ godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` 
 
 ### Configuration
 To choose a backend (marathon is the only one supported), put a yaml configuration
-file named [config.yaml](chimp/docs/configurations/chimp-server/config.yaml) into: ```/etc/chimp-server/``` or ```$HOME/.config/chimp-server/```.
+file named [config.yaml](docs/configurations/chimp-server/config.yaml) into: ```/etc/chimp-server/``` or ```$HOME/.config/chimp-server/```.
 The endpoint of the chosen backend system is also specified in the ```config.yaml``` file. Please refer to the example for an overview of supported options.
 
 ### Usage
@@ -100,7 +100,7 @@ godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` 
 ````
 
 ### Configuration
-To setup the chimp cli put a yaml configuration file named [config.yaml](chimp/docs/configurations/chimp/config.yaml) into: ```/etc/chimp/``` or ```$HOME/.config/chimp/``` In ```docs/configurations/chimp/config.yaml``` you can find an example of such a file where you can set the server and the port to be used to communicate with chimp's server.
+To setup the chimp cli put a yaml configuration file named [config.yaml](docs/configurations/chimp/config.yaml) into: ```/etc/chimp/``` or ```$HOME/.config/chimp/``` In ```docs/configurations/chimp/config.yaml``` you can find an example of such a file where you can set the server and the port to be used to communicate with chimp's server.
 Please note that command arguments to chimp command line will override the configuration set in the ```config.yaml``` file.
 
 
