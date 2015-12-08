@@ -353,7 +353,7 @@ func printInfoTable(verbose bool, artifact Artifact) {
 	}
 	row = append(row, artifact.Name)
 	row = append(row, artifact.Status)
-	row = append(row, endpoints)
+	row = append(row, artifact.Endpoint)
 	row = append(row, fmt.Sprintf("%d/%d", len(artifact.RunningReplicas), artifact.RequestedReplicas))
 	cpus := strconv.FormatFloat(artifact.CPUS, 'f', 1, 64)
 	memory := strconv.FormatFloat(artifact.Memory, 'f', 1, 64)

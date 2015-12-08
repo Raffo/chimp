@@ -53,8 +53,6 @@ Options:
   --label=<k=v>  Labels of the deploy artifact, has to be a dict like k=v
   --env=<k=v>  Environment variables of the deploy artifact, has to be a dict like k=v
   --svcport=<svcport>  Port to listen on
-  --reqserver=<reqserver>  Server to query for deploy request
-  --reqport=<reqport>  Port to use in query for deploy request
   --http-only  If not set we use https as default to query deploy requests
   --oauth2  OAuth2 enable
   --oauth2-token=<access_token>  OAuth2 AccessToken (no user, password required)
@@ -132,6 +130,7 @@ func createClient(arguments map[string]interface{}) client.Client {
 		clusters = append(clusters, clusterName.(string))
 	}
 
+	//FIXME issue with CLI params because of multi-cluster behaviour
 	port := configuration.Port
 	_server := arguments["--reqserver"]
 	_port := arguments["--reqport"]
@@ -197,6 +196,7 @@ func buildRequest(arguments map[string]interface{}) (*ChimpDefinition, error) {
 		memoryLimit := GetStringFromArgs(arguments, "--memory", "0M") //unlimited or backend decided
 
 		ports := []int{svcport}
+		c.DeployRequest = append(c.DeployRequest, CmdClientRequest{})
 		c.DeployRequest[0].Labels = labels
 		c.DeployRequest[0].Env = envVars
 		c.DeployRequest[0].Replicas = replicas

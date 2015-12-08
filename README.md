@@ -117,7 +117,7 @@ Please populate the svcport with the port you want to expose for your applicatio
 
 ````shell
 # example params --url=pierone.stups.zalan.do/cat/cat-hello-aws:0.0.1 --name=test
-chimp create YOURAPPNAME YOUR_PIERONE_URL --port=YOUR_PORT --cpu=NUM_CORES --memory=MEMORY --http-only --reqserver=localhost --reqport=8080
+chimp create YOURAPPNAME YOUR_PIERONE_URL --port=YOUR_PORT --cpu=NUM_CORES --memory=MEMORY --replicas=NUM_REPLICAS --http-only 
 ````
 
 Create also supports a ```--file``` option that allow you to pass the parameters in a yaml file.
