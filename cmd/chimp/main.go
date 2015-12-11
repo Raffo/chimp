@@ -41,11 +41,11 @@ func main() {
   chimp -h | --help
   chimp --version
   chimp create (<filename> | <name> <url> --port=<port> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
-  chimp update (<filename> | <name> <url> --port=<port> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
-  chimp scale (<name>) (<replicas>) [options]
-  chimp delete (<name>) [options]
-  chimp info (<name>) [options]
-  chimp list [--all] [options]
+  chimp update (<filename> | <name> <url> --port=<port> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas> --cluster=<cluster>) [options]
+  chimp scale (<name>) (<replicas>) --cluster=<cluster> [options]
+  chimp delete (<name>) --cluster=<cluster> [options]
+  chimp info (<name>) --cluster=<cluster> [options]
+  chimp list [--all] --cluster=<cluster> [options]
   chimp login (<username>) [options]
 
 
