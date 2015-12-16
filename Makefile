@@ -6,7 +6,7 @@ clean:
 build.test:
 	go test -v ./...
 
-prepare: clean
+prepare:
 	mkdir -p build/linux
 	mkdir -p build/osx
 
