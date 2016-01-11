@@ -93,8 +93,8 @@
 		},
 		{
 			"ImportPath": "github.com/zalando-techmonkeys/gin-oauth2",
-			"Comment": "1.1.1-2-g138c264",
-			"Rev": "138c264b48fb736bca3e1e0836f0287f12e81f42"
+			"Comment": "1.1.1-10-g33c6ba2",
+			"Rev": "33c6ba2573f186874683fb6cd65bdc5ab6f5e5b5"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/ssh/terminal",

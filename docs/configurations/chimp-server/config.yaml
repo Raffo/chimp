@@ -17,6 +17,6 @@ MarathonAuth:
   MarathonHttpPassword: MARATHON_PASSWORD
 AuthorizedTeams:
   - Realm: teams
-    Uid: Techmonkeys
+    Uid: tm 
     Cn: Platform Engineering / System
 EndpointPattern: https://%s.lb.zalando.net
