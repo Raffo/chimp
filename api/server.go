@@ -3,7 +3,6 @@ package api
 import (
 	"crypto/rand"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -30,22 +29,6 @@ type ServerSettings struct {
 
 // global data, p.e. Debug
 var config ServerSettings
-
-//TODO this must be integrated with oauth2 middleware.
-//sets "team" and "uid" in teh context without checking if the user/team is authorized
-func noAuthorization(tc *ginoauth2.TokenContainer, ctx *gin.Context) bool {
-	blob, err := zalando.RequestTeamInfo(tc, zalando.TeamAPI)
-	var data []zalando.TeamInfo
-	err = json.Unmarshal(blob, &data)
-	if err != nil {
-		glog.Errorf("JSON.Unmarshal failed, caused by: %s", err)
-	}
-	for _, teamInfo := range data {
-		ctx.Set("uid", tc.Scopes["uid"].(string))
-		ctx.Set("team", teamInfo.Id_name)
-	}
-	return true
-}
 
 //Service is the main object for the server
 type Service struct{}
@@ -97,7 +80,7 @@ func (svc *Service) Run(cfg ServerSettings) error {
 			}
 			private.Use(ginoauth2.Auth(zalando.UidCheck, oauth2Endpoint))
 		} else { //NO_AUTH
-			private.Use(ginoauth2.Auth(noAuthorization, oauth2Endpoint))
+			private.Use(ginoauth2.Auth(zalando.NoAuthorization, oauth2Endpoint))
 		}
 	}
 
