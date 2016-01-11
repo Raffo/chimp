@@ -40,7 +40,7 @@ func main() {
 	usage := fmt.Sprintf(`Usage:
   chimp -h | --help
   chimp --version
-  chimp create (<filename> | <name> <url> --port=<port> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [options]
+  chimp create (<filename> | <name> <url> --port=<port> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas>) [--cluster=<cluster>] [options]
   chimp update (<filename> | <name> <url> --port=<port> --memory=<memory> --cpu=<cpu-number> --replicas=<replicas> ) [--cluster=<cluster>] [options]
   chimp scale (<name>) (<replicas>) [--cluster=<cluster>] [options]
   chimp delete (<name>) [--cluster=<cluster>] [options]
