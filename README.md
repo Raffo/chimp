@@ -1,5 +1,6 @@
 # CHIMP
-[![Build Status](https://travis-ci.org/zalando-techmonkeys/chimp.svg?branch=master)](https://travis-ci.org/zalando-techmonkeys/chimp)
+[![Build Status](https://travis-ci.org/zalando-techmonkeys/chimp.svg?branch=master)](https://travis-ci.org/zalando-techmonkeys/chimp) [![Go Report Card](http://goreportcard.com/badge/zalando-techmonkeys/chimp)](http://goreportcard.com/report//zalando-techmonkeys/chimp)
+
 
 Chimp is the deployment tool for our cloud solution. It is designed to be the front facing layer for any API for deployment
 This project currently contains chimp's server (chimp-server) and our CLI (chimp).
@@ -117,7 +118,7 @@ Please populate the svcport with the port you want to expose for your applicatio
 
 ````shell
 # example params --url=pierone.stups.zalan.do/cat/cat-hello-aws:0.0.1 --name=test
-chimp create YOURAPPNAME YOUR_PIERONE_URL --port=YOUR_PORT --cpu=NUM_CORES --memory=MEMORY --replicas=NUM_REPLICAS --http-only 
+chimp create YOURAPPNAME YOUR_PIERONE_URL --port=YOUR_PORT --cpu=NUM_CORES --memory=MEMORY --replicas=NUM_REPLICAS --http-only
 ````
 
 Create also supports a ```--file``` option that allow you to pass the parameters in a yaml file.
