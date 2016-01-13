@@ -47,7 +47,7 @@ func main() {
   chimp delete (<name>) [--cluster=<cluster>] [options]
   chimp info (<name>) [--cluster=<cluster>] [options]
   chimp list [--all] [--cluster=<cluster>] [options]
-  chimp login [username>] [options]
+  chimp login [<username>] [options]
 
 
 Options:
