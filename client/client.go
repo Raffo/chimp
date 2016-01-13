@@ -49,7 +49,7 @@ func (bc *Client) RenewAccessToken(username string) {
 		os.Exit(1)
 	}
 	authURLStr := fmt.Sprintf("https://%s%s%s%s", u.Host, u.Path, u.RawQuery, u.Fragment)
-	fmt.Printf("Getting token from URL: %s\n", authURLStr)
+	fmt.Printf("Getting token as %s\n", username)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", authURLStr, nil)
 	req.SetBasicAuth(username, password)

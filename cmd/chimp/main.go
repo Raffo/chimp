@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/user"
 	"strconv"
 	"strings"
 
@@ -46,7 +47,7 @@ func main() {
   chimp delete (<name>) [--cluster=<cluster>] [options]
   chimp info (<name>) [--cluster=<cluster>] [options]
   chimp list [--all] [--cluster=<cluster>] [options]
-  chimp login (<username>) [options]
+  chimp login [<username>] [options]
 
 
 Options:
@@ -75,7 +76,12 @@ Options:
 	}
 	cli := createClient(arguments)
 	name := GetStringFromArgs(arguments, "<name>", "")
-	username := GetStringFromArgs(arguments, "<username>", "")
+	user, err := user.Current()
+	username := ""
+	if err == nil {
+		username = user.Username
+	}
+	username = GetStringFromArgs(arguments, "<username>", username)
 	if arguments["create"].(bool) {
 		cli.GetAccessToken(username)
 		cmdReq, err := buildRequest(arguments)
