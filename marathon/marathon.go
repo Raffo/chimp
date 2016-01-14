@@ -42,8 +42,8 @@ func initMarathonClient() marathon.Marathon {
 	chimpConfig := conf.New()
 	config.URL = chimpConfig.Endpoint
 	if chimpConfig.MarathonAuth.Enabled {
-		config.HttpBasicAuthUser = chimpConfig.MarathonAuth.MarathonHttpUser
-		config.HttpBasicPassword = chimpConfig.MarathonAuth.MarathonHttpPassword
+		config.HTTPBasicAuthUser = chimpConfig.MarathonAuth.MarathonHttpUser
+		config.HTTPBasicPassword = chimpConfig.MarathonAuth.MarathonHttpPassword
 	}
 	client, err := marathon.NewClient(config)
 	if err != nil {
@@ -107,7 +107,7 @@ func (mb MarathonBackend) GetApp(req *ArtifactRequest) (*Artifact, error) {
 		containers := make([]*Container, 0, 1)
 		status := true
 		statString := "OK"
-		for _, hc := range replica.HealthCheckResult {
+		for _, hc := range replica.HealthCheckResults {
 			if hc.Alive == false {
 				status = false
 			}
@@ -237,7 +237,7 @@ func (mb MarathonBackend) Deploy(cr *CreateRequest) (string, error) {
 // Takes two arguments, first one is app name and
 // second one is the instances number in total
 func (mb MarathonBackend) Scale(scale *ScaleRequest) (string, error) {
-	app, err := mb.Client.ScaleApplicationInstances(scale.Name, scale.Replicas, false) //FORCE disabled by default
+	app, err := mb.Client.ScaleApplicationInstances(scale.Name, scale.Replicas, scale.Force)
 	if err != nil {
 		glog.Errorf("Could not scale application %s, error: %s", scale.Name, err)
 		return "", err

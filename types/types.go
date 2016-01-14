@@ -87,6 +87,7 @@ type ListDeployments struct {
 type ScaleRequest struct {
 	Name     string
 	Replicas int
+	Force    bool
 }
 
 //Volume represent a volume that can be mounted in an app

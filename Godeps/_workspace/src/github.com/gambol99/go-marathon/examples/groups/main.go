@@ -18,54 +18,52 @@ package main
 
 import (
 	"flag"
-	"os"
+	"log"
 	"time"
 
 	marathon "github.com/gambol99/go-marathon"
-	"github.com/golang/glog"
 )
 
-var marathon_url string
+var marathonURL string
 
 func init() {
-	flag.StringVar(&marathon_url, "url", "http://127.0.0.1:8080", "the url for the marathon endpoint")
+	flag.StringVar(&marathonURL, "url", "http://127.0.0.1:8080", "the url for the marathon endpoint")
 }
 
-func Assert(err error) {
+func assert(err error) {
 	if err != nil {
-		glog.Fatalf("Failed, error: %s", err)
+		log.Fatalf("Failed, error: %s", err)
 	}
 }
 
 func main() {
 	flag.Parse()
 	config := marathon.NewDefaultConfig()
-	config.URL = marathon_url
-	config.LogOutput = os.Stdout
+	config.URL = marathonURL
 	client, err := marathon.NewClient(config)
 	if err != nil {
-		glog.Fatalf("Failed to create a client for marathon, error: %s", err)
+		log.Fatalf("Failed to create a client for marathon, error: %s", err)
 	}
 
-	glog.Infof("Retrieving a list of groups")
+	log.Printf("Retrieving a list of groups")
 	if groups, err := client.Groups(); err != nil {
-		glog.Errorf("Failed to retrieve the groups from maratho, error: %s", err)
+		log.Fatalf("Failed to retrieve the groups from maratho, error: %s", err)
 	} else {
 		for _, group := range groups.Groups {
-			glog.Infof("Found group: %s", group.ID)
+			log.Printf("Found group: %s", group.ID)
 		}
 	}
 
-	GROUP_NAME := "/product/group"
+	groupName := "/product/group"
 
-	found, err := client.HasGroup(GROUP_NAME)
-	Assert(err)
+	found, err := client.HasGroup(groupName)
+	assert(err)
 	if found {
-		glog.Infof("Deleting the grouy: %s, as it already exists", GROUP_NAME)
-		id, err := client.DeleteGroup(GROUP_NAME)
-		Assert(err)
+		log.Printf("Deleting the group: %s, as it already exists", groupName)
+		id, err := client.DeleteGroup(groupName)
+		assert(err)
 		err = client.WaitOnDeployment(id.DeploymentID, 0)
-		Assert(err)
+		assert(err)
 	}
 
 	/* step: the frontend app */
@@ -82,7 +80,7 @@ func main() {
 	frontend.DependsOn("/product/group/mysql")
 	frontend.Container.Docker.Container("quay.io/gambol99/apache-php:latest").Expose(80).Expose(443)
 	_, err = frontend.CheckHTTP("/hostname.php", 80, 10)
-	Assert(err)
+	assert(err)
 
 	mysql := marathon.NewDockerApplication()
 	mysql.Name("/product/group/mysql")
@@ -92,7 +90,7 @@ func main() {
 	mysql.AddEnv("MYSQL_PASS", "mysql")
 	mysql.Container.Docker.Container("tutum/mysql").Expose(3306)
 	_, err = mysql.CheckTCP(3306, 10)
-	Assert(err)
+	assert(err)
 
 	redis := marathon.NewDockerApplication()
 	redis.Name("/product/group/cache")
@@ -101,19 +99,19 @@ func main() {
 	redis.AddEnv("SERVICE_6379_NAME", "redis")
 	redis.Container.Docker.Container("redis:latest").Expose(6379)
 	_, err = redis.CheckTCP(6379, 10)
-	Assert(err)
+	assert(err)
 
-	group := marathon.NewApplicationGroup(GROUP_NAME)
+	group := marathon.NewApplicationGroup(groupName)
 	group.App(frontend).App(redis).App(mysql)
 
-	Assert(client.CreateGroup(group))
-	glog.Infof("Successfully created the group: %s", group.ID)
+	assert(client.CreateGroup(group))
+	log.Printf("Successfully created the group: %s", group.ID)
 
-	glog.Infof("Updating the group paramaters")
+	log.Printf("Updating the group paramaters")
 	frontend.Count(4)
 
-	id, err := client.UpdateGroup(GROUP_NAME, group)
-	Assert(err)
-	glog.Infof("Successfully updated the group: %s, version: %s", group.ID, id.DeploymentID)
-	Assert(client.WaitOnGroup(GROUP_NAME, 500*time.Second))
+	id, err := client.UpdateGroup(groupName, group)
+	assert(err)
+	log.Printf("Successfully updated the group: %s, version: %s", group.ID, id.DeploymentID)
+	assert(client.WaitOnGroup(groupName, 500*time.Second))
 }

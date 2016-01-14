@@ -17,12 +17,24 @@ limitations under the License.
 package marathon
 
 import (
+	"net"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
-
 )
+
+type stubAddr struct {
+	addr string
+}
+
+func (sa stubAddr) Network() string {
+	return "network"
+}
+
+func (sa stubAddr) String() string {
+	return sa.addr + "/8"
+}
 
 func TestUtilsAtomicIsSwitched(t *testing.T) {
 	var sw atomicSwitch
@@ -41,23 +53,23 @@ func TestUtilsAtomicIsSwitchedOff(t *testing.T) {
 }
 
 func TestUtilsDeadline(t *testing.T) {
-	err := deadline(time.Duration(5) * time.Millisecond, func(chan bool) error {
+	err := deadline(time.Duration(5)*time.Millisecond, func(chan bool) error {
 		<-time.After(time.Duration(1) * time.Second)
 		return nil
 	})
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, ErrTimeoutError, err)
 
-	err = deadline(time.Duration(5) * time.Second, func(chan bool) error {
+	err = deadline(time.Duration(5)*time.Second, func(chan bool) error {
 		<-time.After(time.Duration(5) * time.Millisecond)
 		return nil
 	})
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 }
 
 func TestUtilsContains(t *testing.T) {
-	list := []string{"1","2","3"}
+	list := []string{"1", "2", "3"}
 	assert.True(t, contains(list, "2"))
 	assert.False(t, contains(list, "12"))
 }
@@ -70,11 +82,22 @@ func TestUtilsValidateID(t *testing.T) {
 }
 
 func TestUtilsGetInterfaceAddress(t *testing.T) {
-	address, err := getInterfaceAddress("lo")
-	assert.Nil(t, err)
-	assert.Equal(t, "127.0.0.1", address)
+	// Find actual IP address we can test against.
+	interfaces, err := net.Interfaces()
+	assert.NoError(t, err)
+	assert.NotEqual(t, 0, len(interfaces))
+	iface := interfaces[0]
+	expectedName := iface.Name
+	addresses, err := iface.Addrs()
+	assert.NoError(t, err)
+	expectedIPAddress := parseIPAddr(addresses[0])
+
+	// Execute test.
+	address, err := getInterfaceAddress(expectedName)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedIPAddress, address)
 	address, err = getInterfaceAddress("nothing")
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, "", address)
 }
 
@@ -83,4 +106,10 @@ func TestUtilsTrimRootPath(t *testing.T) {
 	assert.Equal(t, trimRootPath(path), "test/path")
 	path = "test/path"
 	assert.Equal(t, trimRootPath(path), "test/path")
+}
+
+func TestParseIPAddr(t *testing.T) {
+	ipAddr := "127.0.0.1"
+	addr := stubAddr{ipAddr}
+	assert.Equal(t, ipAddr, parseIPAddr(addr))
 }
