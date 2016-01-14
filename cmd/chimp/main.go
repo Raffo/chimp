@@ -82,6 +82,8 @@ Options:
 		username = user.Username
 	}
 	username = GetStringFromArgs(arguments, "<username>", username)
+
+	var force = arguments["--force"].(bool)
 	if arguments["create"].(bool) {
 		cli.GetAccessToken(username)
 		cmdReq, err := buildRequest(arguments)
@@ -111,7 +113,7 @@ Options:
 	} else if arguments["scale"].(bool) {
 		cli.GetAccessToken(username)
 		replicas := GetIntFromArgs(arguments, "<replicas>", 1)
-		cli.Scale(name, replicas)
+		cli.Scale(name, replicas, force)
 	} else if arguments["login"].(bool) {
 		cli.RenewAccessToken(strings.TrimSpace(username))
 	}

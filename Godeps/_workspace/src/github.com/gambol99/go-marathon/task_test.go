@@ -22,37 +22,86 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestHasHealthCheckResults(t *testing.T) {
+	task := Task{}
+	assert.False(t, task.HasHealthCheckResults())
+	task.HealthCheckResults = append(task.HealthCheckResults, &HealthCheckResult{})
+	assert.True(t, task.HasHealthCheckResults())
+}
+
 func TestAllTasks(t *testing.T) {
-	client := NewFakeMarathonEndpoint(t)
-	tasks, err := client.AllTasks()
+	endpoint := newFakeMarathonEndpoint(t, nil)
+	defer endpoint.Close()
+
+	tasks, err := endpoint.Client.AllTasks(nil)
+	assert.NoError(t, err)
+	if assert.NotNil(t, tasks) {
+		assert.Equal(t, len(tasks.Tasks), 2)
+	}
+
+	tasks, err = endpoint.Client.AllTasks(&AllTasksOpts{Status: "staging"})
 	assert.Nil(t, err)
+	if assert.NotNil(t, tasks) {
+		assert.Equal(t, len(tasks.Tasks), 0)
+	}
+}
+
+func TestTasks(t *testing.T) {
+	endpoint := newFakeMarathonEndpoint(t, nil)
+	defer endpoint.Close()
+
+	tasks, err := endpoint.Client.Tasks(fakeAppName)
+	assert.NoError(t, err)
+	if assert.NotNil(t, tasks) {
+		assert.Equal(t, len(tasks.Tasks), 2)
+	}
+}
+
+func TestKillApplicationTasks(t *testing.T) {
+	endpoint := newFakeMarathonEndpoint(t, nil)
+	defer endpoint.Close()
+
+	tasks, err := endpoint.Client.KillApplicationTasks(fakeAppName, nil)
+	assert.NoError(t, err)
 	assert.NotNil(t, tasks)
-	assert.Equal(t, len(tasks.Tasks), 2)
+}
+
+func TestKillTask(t *testing.T) {
+	endpoint := newFakeMarathonEndpoint(t, nil)
+	defer endpoint.Close()
+
+	task, err := endpoint.Client.KillTask(fakeTaskID, nil)
+	assert.NoError(t, err)
+	if assert.NotNil(t, task) {
+		assert.Equal(t, fakeTaskID, task.ID)
+	}
+}
+
+func TestKillTasks(t *testing.T) {
+	endpoint := newFakeMarathonEndpoint(t, nil)
+	defer endpoint.Close()
+
+	err := endpoint.Client.KillTasks([]string{fakeTaskID}, nil)
+	assert.NoError(t, err)
 }
 
 func TestTaskEndpoints(t *testing.T) {
-	client := NewFakeMarathonEndpoint(t)
+	endpoint := newFakeMarathonEndpoint(t, nil)
+	defer endpoint.Close()
 
-	endpoints, err := client.TaskEndpoints(fakeAppNameBroken, 8080, true)
-	assert.Nil(t, err)
+	endpoints, err := endpoint.Client.TaskEndpoints(fakeAppNameBroken, 8080, true)
+	assert.NoError(t, err)
 	assert.NotNil(t, endpoints)
 	assert.Equal(t, len(endpoints), 1, t)
 	assert.Equal(t, endpoints[0], "10.141.141.10:31045", t)
 
-	endpoints, err = client.TaskEndpoints(fakeAppNameBroken, 8080, false)
-	assert.Nil(t, err)
+	endpoints, err = endpoint.Client.TaskEndpoints(fakeAppNameBroken, 8080, false)
+	assert.NoError(t, err)
 	assert.NotNil(t, endpoints)
 	assert.Equal(t, len(endpoints), 2, t)
 	assert.Equal(t, endpoints[0], "10.141.141.10:31045", t)
 	assert.Equal(t, endpoints[1], "10.141.141.10:31234", t)
 
-	endpoints, err = client.TaskEndpoints(fakeAppNameBroken, 80, true)
-	assert.NotNil(t, err)
-}
-
-func TestKillApplicationTasks(t *testing.T) {
-	client := NewFakeMarathonEndpoint(t)
-	tasks, err := client.KillApplicationTasks(fakeAppName, "", false)
-	assert.Nil(t, err)
-	assert.NotNil(t, tasks)
+	endpoints, err = endpoint.Client.TaskEndpoints(fakeAppNameBroken, 80, true)
+	assert.Error(t, err)
 }

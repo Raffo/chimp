@@ -201,6 +201,11 @@ func deployDelete(ginCtx *gin.Context) {
 func deployReplicasModify(ginCtx *gin.Context) {
 	name := ginCtx.Params.ByName("name")
 	num := ginCtx.Params.ByName("num")
+	force := ginCtx.Query("force")
+	fs := false
+	if force == "true" {
+		fs = true
+	}
 	glog.Info("scaling %s to %d instances", name, num)
 	replicas, err := strconv.Atoi(num)
 	if err != nil {
@@ -209,7 +214,7 @@ func deployReplicasModify(ginCtx *gin.Context) {
 		ginCtx.Error(err)
 		return
 	}
-	var beReq = &ScaleRequest{Name: name, Replicas: replicas}
+	var beReq = &ScaleRequest{Name: name, Replicas: replicas, Force: fs}
 
 	_, err = se.Backend.Scale(beReq)
 	if err != nil {

@@ -17,7 +17,7 @@
 		},
 		{
 			"ImportPath": "github.com/gambol99/go-marathon",
-			"Rev": "99e5dac1cfc32cafa8171ddd332fb1ec9a8c9159"
+			"Rev": "5baa2d0ed39d98023c7a972bcec850f4691ba842"
 		},
 		{
 			"ImportPath": "github.com/gin-gonic/gin",

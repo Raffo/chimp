@@ -125,7 +125,7 @@ func (bc *Client) buildDeploymentURL(name string, params map[string]string, clus
 	return u.String()
 }
 
-func (bc *Client) buildDeploymentReplicasURL(name string, replicas int, cluster string) string {
+func (bc *Client) buildDeploymentReplicasURL(name string, replicas int, cluster string, force bool) string {
 	u := new(url.URL)
 	u.Scheme = bc.Scheme
 	host := bc.Config.Clusters[cluster].IP
@@ -134,6 +134,9 @@ func (bc *Client) buildDeploymentReplicasURL(name string, replicas int, cluster 
 	if bc.Scheme == "https" && port == 443 {
 		u.Host = host
 	}
+	q := u.Query()
+	q.Set("force", strconv.FormatBool(force))
+	u.RawQuery = q.Encode()
 	u.Path = path.Join("/deployments", name, "replicas", strconv.Itoa(replicas))
 	return u.String()
 }
@@ -303,11 +306,11 @@ func (bc *Client) UpdateDeploy(cmdReq *CmdClientRequest) {
 }
 
 //Scale is used to scale an existing application to the number of replicas specified
-func (bc *Client) Scale(name string, replicas int) {
+func (bc *Client) Scale(name string, replicas int, force bool) {
 	for _, clusterName := range bc.Clusters {
 		fmt.Println(clusterName)
 		deploy := map[string]interface{}{"Name": name, "Replicas": replicas}
-		url := bc.buildDeploymentReplicasURL(name, replicas, clusterName)
+		url := bc.buildDeploymentReplicasURL(name, replicas, clusterName, force)
 		_, res, err := bc.makeRequest("PATCH", url, deploy)
 		if err != nil {
 			fmt.Println(errorMessageBuilder("Cannot scale", err))
