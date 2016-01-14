@@ -1,6 +1,6 @@
 language: go
 go:
-    - 1.4
+    - 1.5
     - tip
 install:
   - export GOPATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH"
