@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/zalando-techmonkeys/chimp",
-	"GoVersion": "go1.5.1",
+	"GoVersion": "go1.5.3",
 	"Packages": [
 		"./..."
 	],
@@ -16,6 +16,10 @@
 			"Rev": "854c423c810880e30b9fecdabb12d54f4a92f9bb"
 		},
 		{
+			"ImportPath": "github.com/donovanhide/eventsource",
+			"Rev": "d8a3071799b98cacd30b6da92f536050ccfe6da4"
+		},
+		{
 			"ImportPath": "github.com/gambol99/go-marathon",
 			"Rev": "5baa2d0ed39d98023c7a972bcec850f4691ba842"
 		},
@@ -27,6 +31,10 @@
 		{
 			"ImportPath": "github.com/golang/glog",
 			"Rev": "fca8c8854093a154ff1eb580aae10276ad6b1b5f"
+		},
+		{
+			"ImportPath": "github.com/google/go-querystring/query",
+			"Rev": "2a60fc2ba6c19de80291203597d752e9ba58e4c0"
 		},
 		{
 			"ImportPath": "github.com/kr/pretty",
@@ -75,10 +83,6 @@
 			"Rev": "db7ff930a189b98d602179d9001d33345f42b8c7"
 		},
 		{
-			"ImportPath": "github.com/stretchr/testify/assert",
-			"Rev": "59fc8e570cd707a33a93842b00a9aae4b5cd38b2"
-		},
-		{
 			"ImportPath": "github.com/vrischmann/envconfig",
 			"Rev": "4650ea1eb6fafc4ae0c008a402c3defcea83766f"
 		},
@@ -98,7 +102,7 @@
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/ssh/terminal",
-			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
+			"Rev": "1351f936d976c60a0a48d728281922cf63eafb8d"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
