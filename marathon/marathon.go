@@ -290,7 +290,11 @@ func (mb MarathonBackend) UpdateDeployment(req *UpdateRequest) (string, error) {
 	app.Container.Docker.Container(imageurl).ForcePullImage = true
 
 	appID, err := mb.Client.UpdateApplication(app)
-	return appID.DeploymentID, err
+	if err != nil {
+		return "", err
+	}
+	return appID.DeploymentID, nil
+
 }
 
 func intslice2str(ary []int, sep string) string {
