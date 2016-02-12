@@ -54,12 +54,13 @@ func (bc *Client) RenewAccessToken(username string) {
 	req, err := http.NewRequest("GET", authURLStr, nil)
 	req.SetBasicAuth(username, password)
 	res, err := client.Do(req)
-
+	if res != nil {
+		defer res.Body.Close()
+	}
 	if err != nil {
 		fmt.Printf("ERR: Could not get Access Token, caused by: %s\n", err)
 		os.Exit(1)
 	}
-	defer res.Body.Close()
 	respBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		fmt.Printf("ERR: Can not read response body, caused by: %s\n", err)
@@ -146,6 +147,9 @@ func (bc *Client) DeleteDeploy(name string) {
 	for _, clusterName := range bc.Clusters {
 		url := bc.buildDeploymentURL(name, nil, clusterName)
 		_, res, err := bc.makeRequest("DELETE", url, nil)
+		if res != nil {
+			defer res.Body.Close()
+		}
 		if err != nil {
 			fmt.Println(errorMessageBuilder("Cannot delete deployment", err))
 			continue
@@ -174,6 +178,9 @@ func (bc *Client) InfoDeploy(name string, verbose bool) {
 		fmt.Println(clusterName)
 		url := bc.buildDeploymentURL(name, nil, clusterName)
 		_, res, err := bc.makeRequest("GET", url, nil)
+		if res != nil {
+			defer res.Body.Close()
+		}
 		if err != nil {
 			fmt.Println(errorMessageBuilder("Cannot get info for deploy", err))
 			continue
@@ -208,6 +215,9 @@ func (bc *Client) ListDeploy(all bool) {
 		}
 		url := bc.buildDeploymentURL("", query, clusterName)
 		_, res, err := bc.makeRequest("GET", url, nil)
+		if res != nil {
+			defer res.Body.Close()
+		}
 		if err != nil {
 			fmt.Println(errorMessageBuilder("Cannot list deployments", err))
 			continue
@@ -250,6 +260,9 @@ func (bc *Client) CreateDeploy(cmdReq *CmdClientRequest) {
 			"MemoryLimit": cmdReq.MemoryLimit, "Force": cmdReq.Force, "Volumes": cmdReq.Volumes}
 		url := bc.buildDeploymentURL("", nil, clusterName)
 		_, res, err := bc.makeRequest("POST", url, deploy)
+		if res != nil {
+			defer res.Body.Close()
+		}
 		if err != nil {
 			fmt.Println(errorMessageBuilder("Deploy unsuccessful", err))
 			continue
@@ -283,6 +296,9 @@ func (bc *Client) UpdateDeploy(cmdReq *CmdClientRequest) {
 			"MemoryLimit": cmdReq.MemoryLimit, "Force": cmdReq.Force}
 		url := bc.buildDeploymentURL(cmdReq.Name, nil, clusterName)
 		_, res, err := bc.makeRequest("PUT", url, deploy)
+		if res != nil {
+			defer res.Body.Close()
+		}
 		if err != nil {
 			fmt.Println(errorMessageBuilder("Deploy unsuccessful", err))
 			continue
@@ -312,6 +328,9 @@ func (bc *Client) Scale(name string, replicas int, force bool) {
 		deploy := map[string]interface{}{"Name": name, "Replicas": replicas}
 		url := bc.buildDeploymentReplicasURL(name, replicas, clusterName, force)
 		_, res, err := bc.makeRequest("PATCH", url, deploy)
+		if res != nil {
+			defer res.Body.Close()
+		}
 		if err != nil {
 			fmt.Println(errorMessageBuilder("Cannot scale", err))
 			continue
