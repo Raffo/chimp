@@ -50,7 +50,8 @@ go get github.com/tools/godep
 godep restore
 
 #for tagging the build, both server and cli:
-godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`"  github.com/zalando-techmonkeys/chimp/...
+
+godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`"  -tags "zalandoValidation zalando" github.com/zalando-techmonkeys/chimp/...
 ````
 
 ### Configuration
@@ -92,7 +93,7 @@ go get github.com/tools/godep
 godep restore
 
 #for tagging the build, both server and cli:
-godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`" github.com/zalando-techmonkeys/chimp/...
+godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`"  -tags "zalandoValidation zalando" github.com/zalando-techmonkeys/chimp/...
 ````
 
 ### Configuration
