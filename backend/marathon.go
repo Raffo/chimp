@@ -1,4 +1,6 @@
-package marathon
+// +build marathon
+
+package backend
 
 import (
 	"encoding/json"
@@ -19,11 +21,14 @@ type MarathonBackend struct {
 	Client marathon.Marathon
 }
 
-//New returns an instance of the marathon backend
-func New() *MarathonBackend {
-	ma := MarathonBackend{}
+func NewMarathonBackend() Backend {
+	ma := &MarathonBackend{}
 	ma.Client = initMarathonClient()
-	return &ma
+	return ma
+}
+
+func init() {
+	New = NewMarathonBackend
 }
 
 // Constants
@@ -55,7 +60,7 @@ func initMarathonClient() marathon.Marathon {
 // GetAppNames returns all currently listed applications from marathon
 // marathon.Applications is a struct with a lot of details
 // about all listed applications
-func (mb MarathonBackend) GetAppNames(filter map[string]string) ([]string, error) {
+func (mb *MarathonBackend) GetAppNames(filter map[string]string) ([]string, error) {
 	marathonFilter := make(url.Values, 1)
 	var arr []string
 
@@ -79,7 +84,7 @@ func (mb MarathonBackend) GetAppNames(filter map[string]string) ([]string, error
 // GetApp returns a specific application from marathon
 // marathon.Application is a struct with a lot of details
 // about the application itself
-func (mb MarathonBackend) GetApp(req *ArtifactRequest) (*Artifact, error) {
+func (mb *MarathonBackend) GetApp(req *ArtifactRequest) (*Artifact, error) {
 	application, err := mb.Client.Application(req.Name)
 	if err != nil {
 		glog.Errorf("Could not get application %s, error: %s", req.Name, err)
@@ -166,7 +171,7 @@ func (mb MarathonBackend) GetApp(req *ArtifactRequest) (*Artifact, error) {
 
 // Deploy deploys a new application
 // takes CreateRequest from backend as argument
-func (mb MarathonBackend) Deploy(cr *CreateRequest) (string, error) {
+func (mb *MarathonBackend) Deploy(cr *CreateRequest) (string, error) {
 	glog.Infof("Deploying a new application with name %s", cr.Name)
 	app := marathon.NewDockerApplication()
 	id := cr.Name
@@ -236,7 +241,7 @@ func (mb MarathonBackend) Deploy(cr *CreateRequest) (string, error) {
 // Scale provides to scale up or down applications
 // Takes two arguments, first one is app name and
 // second one is the instances number in total
-func (mb MarathonBackend) Scale(scale *ScaleRequest) (string, error) {
+func (mb *MarathonBackend) Scale(scale *ScaleRequest) (string, error) {
 	app, err := mb.Client.ScaleApplicationInstances(scale.Name, scale.Replicas, scale.Force)
 	if err != nil {
 		glog.Errorf("Could not scale application %s, error: %s", scale.Name, err)
@@ -247,7 +252,7 @@ func (mb MarathonBackend) Scale(scale *ScaleRequest) (string, error) {
 }
 
 // Delete provides to delete applications by name
-func (mb MarathonBackend) Delete(delReq *ArtifactRequest) (string, error) {
+func (mb *MarathonBackend) Delete(delReq *ArtifactRequest) (string, error) {
 	// if application already exists, it will be deleted
 	app, err := mb.Client.DeleteApplication(delReq.Name)
 	if err != nil {
@@ -259,7 +264,7 @@ func (mb MarathonBackend) Delete(delReq *ArtifactRequest) (string, error) {
 }
 
 // UpdateDeployment updates the current deployment. This means the deployment will be restarted
-func (mb MarathonBackend) UpdateDeployment(req *UpdateRequest) (string, error) {
+func (mb *MarathonBackend) UpdateDeployment(req *UpdateRequest) (string, error) {
 	glog.Infof("Updating a previously deployed application")
 	app := marathon.NewDockerApplication()
 	id := req.Name
