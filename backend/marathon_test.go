@@ -1,6 +1,6 @@
-// +build integration
+// +build integration +marathon
 
-package marathon
+package backend
 
 import (
 	"testing"

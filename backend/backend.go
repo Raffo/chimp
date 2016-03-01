@@ -11,3 +11,7 @@ type Backend interface {
 	Delete(deleteReq *ArtifactRequest) (string, error)
 	UpdateDeployment(req *UpdateRequest) (string, error)
 }
+
+type backendFactory func() Backend
+
+var New backendFactory

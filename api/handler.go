@@ -12,8 +12,6 @@ import (
 	"github.com/golang/glog"
 	backend "github.com/zalando-techmonkeys/chimp/backend"
 	"github.com/zalando-techmonkeys/chimp/conf"
-	"github.com/zalando-techmonkeys/chimp/marathon"
-	mock "github.com/zalando-techmonkeys/chimp/mockbackend"
 	. "github.com/zalando-techmonkeys/chimp/types"
 	"github.com/zalando-techmonkeys/chimp/validators"
 )
@@ -31,16 +29,7 @@ var se = Backend{
 
 //Start initializes the current backend
 func Start() {
-	glog.Infof("backend type from config: %s", se.BackendType)
-	//Where the backend switch happens
-	switch se.BackendType {
-	case "marathon":
-		se.Backend = marathon.New()
-	case "mock":
-		se.Backend = mock.New()
-	case "default":
-		se.Backend = mock.New()
-	}
+	se.Backend = backend.New()
 }
 
 //BackendError is the erro representation that should be consumed by "frontend" serving layer
