@@ -5,8 +5,6 @@ fluentdEnabled: true
 debugEnabled: true
 oauth2Enabled: true
 AuthorizationType: 0
-authURL:  https://token.auth.zalando.com/access_token
-tokenURL: https://auth.zalando.com/z/oauth2/tokeninfo
 tlsCertfilePath: /path/to/your/certfile
 tlsKeyfilePath: /path/to/your/keyfile
 logFlushInterval: 5 #in seconds

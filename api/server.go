@@ -15,7 +15,6 @@ import (
 	"github.com/zalando-techmonkeys/gin-gomonitor/aspects"
 	"github.com/zalando-techmonkeys/gin-oauth2"
 	"github.com/zalando-techmonkeys/gin-oauth2/zalando"
-	"golang.org/x/oauth2"
 	"gopkg.in/mcuadros/go-monitor.v1/aspects"
 )
 
@@ -43,11 +42,6 @@ func (svc *Service) Run(cfg ServerSettings) error {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	var oauth2Endpoint = oauth2.Endpoint{
-		AuthURL:  config.Configuration.AuthURL,
-		TokenURL: config.Configuration.TokenURL,
-	}
-
 	// Middleware
 	router := gin.New()
 	// use glog for logging
@@ -65,6 +59,16 @@ func (svc *Service) Run(cfg ServerSettings) error {
 	var private *gin.RouterGroup
 	//ATM team or user auth is mutually exclusive, we have to look for a better solution
 	if config.Configuration.Oauth2Enabled {
+
+		//replacing the values of default ginoauth2 endpoints for zalando with values set from CLI
+		if config.Configuration.AuthURL != "" {
+			zalando.OAuth2Endpoint.AuthURL = config.Configuration.AuthURL
+		}
+
+		if config.Configuration.TokenURL != "" {
+			zalando.OAuth2Endpoint.TokenURL = config.Configuration.TokenURL
+		}
+
 		private = router.Group("")
 		if config.Configuration.AuthorizationType == conf.TeamAuth {
 			accessTuple := make([]zalando.AccessTuple, len(config.Configuration.AuthorizedTeams))
@@ -72,15 +76,16 @@ func (svc *Service) Run(cfg ServerSettings) error {
 				accessTuple[i] = zalando.AccessTuple{Realm: v.Realm, Uid: v.UID, Cn: v.Cn}
 			}
 			zalando.AccessTuples = accessTuple
-			private.Use(ginoauth2.Auth(zalando.GroupCheck, oauth2Endpoint))
+			private.Use(ginoauth2.Auth(zalando.GroupCheck, zalando.OAuth2Endpoint))
 		} else if config.Configuration.AuthorizationType == conf.IndividualAuth {
 			accessTuple := make([]zalando.AccessTuple, len(config.Configuration.AuthorizedUsers))
 			for i, v := range config.Configuration.AuthorizedUsers {
 				accessTuple[i] = zalando.AccessTuple{Realm: v.Realm, Uid: v.UID, Cn: v.Cn}
 			}
-			private.Use(ginoauth2.Auth(zalando.UidCheck, oauth2Endpoint))
+			zalando.AccessTuples = accessTuple
+			private.Use(ginoauth2.Auth(zalando.UidCheck, zalando.OAuth2Endpoint))
 		} else { //NO_AUTH
-			private.Use(ginoauth2.Auth(zalando.NoAuthorization, oauth2Endpoint))
+			private.Use(ginoauth2.Auth(zalando.NoAuthorization, zalando.OAuth2Endpoint))
 		}
 	}
 
