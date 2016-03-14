@@ -6,6 +6,7 @@ clean:
 check:
 	golint ./... | egrep -v '^vendor/'
 	go vet ./... 2>&1 | egrep -v '^(vendor/|exit status 1)'
+	unused ./... | egrep -v '^vendor/'
 
 build.test:
 	go test -v ./...
