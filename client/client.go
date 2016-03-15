@@ -425,20 +425,3 @@ func printInfoTable(verbose bool, artifact Artifact) {
 	}
 
 }
-
-func printLogs(artifact Artifact) {
-	containerTable := printer.NewWriter(os.Stdout)
-	containerTable.SetRowLine(false)
-	containerTable.SetRowLine(false)
-	containerTable.SetBorder(false)
-	containerTable.SetHeader([]string{"Endpoint", "Log URL"})
-	for _, replica := range artifact.RunningReplicas {
-		cRow := []string{}
-		cRow = append(cRow, replica.Endpoints[0])
-		cRow = append(cRow, replica.Containers[0].LogInfo["remoteURL"])
-		cRow = append(cRow)
-		containerTable.Append(cRow)
-	}
-	containerTable.Render()
-
-}
