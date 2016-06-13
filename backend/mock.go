@@ -3,7 +3,7 @@
 package backend
 
 import (
-	. "github.com/zalando-techmonkeys/chimp/types"
+	. "github.com/zalando/chimp/types"
 )
 
 //MockBackend is used to have a fake backend that mocks the current behaviour of a backend.

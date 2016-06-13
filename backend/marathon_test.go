@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/zalando-techmonkeys/chimp/backend"
+	"github.com/zalando/chimp/backend"
 )
 
 var m *MarathonBackend

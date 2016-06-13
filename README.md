@@ -1,5 +1,5 @@
 # CHIMP
-[![Build Status](https://travis-ci.org/zalando-techmonkeys/chimp.svg?branch=master)](https://travis-ci.org/zalando-techmonkeys/chimp) [![Go Report Card](http://goreportcard.com/badge/zalando-techmonkeys/chimp)](http://goreportcard.com/report//zalando-techmonkeys/chimp)
+[![Build Status](https://travis-ci.org/zalando/chimp.svg?branch=master)](https://travis-ci.org/zalando/chimp) [![Go Report Card](http://goreportcard.com/badge/zalando/chimp)](http://goreportcard.com/report//zalando/chimp)
 
 Chimp is a command line interface/server application created at [Zalando Tech](https://tech.zalando.com/), but useful out-of-the-box for anyone who is deploying applications in a Mesos/Marathon environment. This repository currently contains Chimp's server (chimp-server) and CLI (chimp).
 
@@ -55,14 +55,14 @@ godep restore
 
 #for tagging the build, both server and cli:
 
-godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`"  -tags "zalandoValidation zalando" github.com/zalando-techmonkeys/chimp/...
+godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`"  -tags "zalandoValidation zalando" github.com/zalando/chimp/...
 ````
 
 ### Configuration
 
 To choose a backend, add a yaml configuration file named [config.yaml](docs/configurations/chimp-server/config.yaml) into: ```/etc/chimp-server/``` or ```$HOME/.config/chimp-server/```. Note that Chimp only supports Marathon for now; see the section "Potential Next Steps" below for more info.
 
-The endpoint of the chosen backend system is also specified in the ```config.yaml``` file. Please refer to [the example](https://github.com/zalando-techmonkeys/chimp/blob/master/docs/configurations/chimp-server/config.yaml) for an overview of supported options.
+The endpoint of the chosen backend system is also specified in the ```config.yaml``` file. Please refer to [the example](https://github.com/zalando/chimp/blob/master/docs/configurations/chimp-server/config.yaml) for an overview of supported options.
 
 ### Using Chimp
 After you've installed Chimp successfully, you can run the API server as:
@@ -95,7 +95,7 @@ go get github.com/tools/godep
 godep restore
 
 #for tagging the build, both server and cli:
-godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`"  -tags "zalandoValidation zalando" github.com/zalando-techmonkeys/chimp/...
+godep go install  -ldflags "-X main.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.Githash=`git rev-parse HEAD`"  -tags "zalandoValidation zalando" github.com/zalando/chimp/...
 ````
 
 #### CLI Configuration

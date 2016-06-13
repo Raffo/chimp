@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	printer "github.com/olekukonko/tablewriter"
-	konfig "github.com/zalando-techmonkeys/chimp/conf/client"
-	. "github.com/zalando-techmonkeys/chimp/types"
+	konfig "github.com/zalando/chimp/conf/client"
+	. "github.com/zalando/chimp/types"
 	"golang.org/x/crypto/ssh/terminal"
 )
 

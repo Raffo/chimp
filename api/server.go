@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
-	"github.com/zalando-techmonkeys/chimp/conf"
+	"github.com/zalando/chimp/conf"
 	"github.com/zalando-techmonkeys/gin-glog"
 	"github.com/zalando-techmonkeys/gin-gomonitor"
 	"github.com/zalando-techmonkeys/gin-gomonitor/aspects"

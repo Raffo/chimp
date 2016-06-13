@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/zalando-techmonkeys/chimp",
+	"ImportPath": "github.com/zalando/chimp",
 	"GoVersion": "go1.6",
 	"Packages": [
 		"./..."

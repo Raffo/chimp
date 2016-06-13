@@ -10,10 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/golang/glog"
-	backend "github.com/zalando-techmonkeys/chimp/backend"
-	"github.com/zalando-techmonkeys/chimp/conf"
-	. "github.com/zalando-techmonkeys/chimp/types"
-	"github.com/zalando-techmonkeys/chimp/validators"
+	backend "github.com/zalando/chimp/backend"
+	"github.com/zalando/chimp/conf"
+	. "github.com/zalando/chimp/types"
+	"github.com/zalando/chimp/validators"
 )
 
 //Backend contains the current backend

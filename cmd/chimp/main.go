@@ -10,9 +10,9 @@ import (
 	"github.com/docopt/docopt-go"
 	"github.com/spf13/viper"
 	"github.com/vrischmann/envconfig"
-	"github.com/zalando-techmonkeys/chimp/client"
-	konfig "github.com/zalando-techmonkeys/chimp/conf/client"
-	. "github.com/zalando-techmonkeys/chimp/types"
+	"github.com/zalando/chimp/client"
+	konfig "github.com/zalando/chimp/conf/client"
+	. "github.com/zalando/chimp/types"
 )
 
 //Buildstamp and Githash are used to set information at build time regarding

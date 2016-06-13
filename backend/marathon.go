@@ -12,8 +12,8 @@ import (
 
 	marathon "github.com/gambol99/go-marathon"
 	"github.com/golang/glog"
-	"github.com/zalando-techmonkeys/chimp/conf"
-	. "github.com/zalando-techmonkeys/chimp/types"
+	"github.com/zalando/chimp/conf"
+	. "github.com/zalando/chimp/types"
 )
 
 //MarathonBackend is the wrapper for the marathon API

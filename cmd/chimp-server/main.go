@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"github.com/zalando-techmonkeys/chimp/api"
-	"github.com/zalando-techmonkeys/chimp/conf"
+	"github.com/zalando/chimp/api"
+	"github.com/zalando/chimp/conf"
 )
 
 //Buildstamp and Githash are used to set information at build time regarding

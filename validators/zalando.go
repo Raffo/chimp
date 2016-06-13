@@ -3,7 +3,7 @@
 package validators
 
 import (
-	. "github.com/zalando-techmonkeys/chimp/types"
+	. "github.com/zalando/chimp/types"
 	"strings"
 )
 

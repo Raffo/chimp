@@ -11,7 +11,7 @@ import (
 	"github.com/GoogleCloudPlatform/kubernetes/pkg/fields"
 	"github.com/GoogleCloudPlatform/kubernetes/pkg/labels"
 	"github.com/golang/glog"
-	"github.com/zalando-techmonkeys/chimp/conf"
+	"github.com/zalando/chimp/conf"
 )
 
 var SERVICE_SUFFIX = "-service"
