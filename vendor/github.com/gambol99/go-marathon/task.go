@@ -34,9 +34,17 @@ type Task struct {
 	HealthCheckResults []*HealthCheckResult `json:"healthCheckResults"`
 	Ports              []int                `json:"ports"`
 	ServicePorts       []int                `json:"servicePorts"`
+	SlaveID            string               `json:"slaveId"`
 	StagedAt           string               `json:"stagedAt"`
 	StartedAt          string               `json:"startedAt"`
+	IPAddresses        []*IPAddress         `json:"ipAddresses"`
 	Version            string               `json:"version"`
+}
+
+// IPAddress represents a task's IP address and protocol.
+type IPAddress struct {
+	IPAddress string `json:"ipAddress"`
+	Protocol  string `json:"protocol"`
 }
 
 // AllTasksOpts contains a payload for AllTasks method
@@ -115,6 +123,9 @@ func (r *marathonClient) KillApplicationTasks(id string, opts *KillApplicationTa
 //	opts:		KillTaskOpts request payload
 func (r *marathonClient) KillTask(taskID string, opts *KillTaskOpts) (*Task, error) {
 	appName := taskID[0:strings.LastIndex(taskID, ".")]
+	appName = strings.Replace(appName, "_", "/", -1)
+	taskID = strings.Replace(taskID, "/", "_", -1)
+
 	u := fmt.Sprintf("%s/%s/tasks/%s", marathonAPIApps, appName, taskID)
 	u, err := addOptions(u, opts)
 	if err != nil {
@@ -176,7 +187,7 @@ func (r *marathonClient) TaskEndpoints(name string, port int, healthCheck bool) 
 	}
 
 	// step: do we have any tasks?
-	if application.Tasks == nil || len(application.Tasks) <= 0 {
+	if application.Tasks == nil || len(application.Tasks) == 0 {
 		return nil, nil
 	}
 

@@ -14,7 +14,7 @@ import (
 // It will try and reconnect if the connection is lost, respecting both
 // received retry delays and event id's.
 type Stream struct {
-	c           http.Client
+	c           *http.Client
 	req         *http.Request
 	lastEventId string
 	retry       time.Duration
@@ -25,6 +25,8 @@ type Stream struct {
 	// action when an error is encountered. The stream will always attempt to continue,
 	// even if that involves reconnecting to the server.
 	Errors chan error
+	// Logger is a logger that, when set, will be used for logging debug messages
+	Logger *log.Logger
 }
 
 type SubscriptionError struct {
@@ -48,9 +50,16 @@ func Subscribe(url, lastEventId string) (*Stream, error) {
 
 // SubscribeWithRequest will take an http.Request to setup the stream, allowing custom headers
 // to be specified, authentication to be configured, etc.
-func SubscribeWithRequest(lastEventId string, req *http.Request) (*Stream, error) {
+func SubscribeWithRequest(lastEventId string, request *http.Request) (*Stream, error) {
+	return SubscribeWith(lastEventId, http.DefaultClient, request)
+}
+
+// SubscribeWith takes a http client and request providing customization over both headers and
+// control over the http client settings (timeouts, tls, etc)
+func SubscribeWith(lastEventId string, client *http.Client, request *http.Request) (*Stream, error) {
 	stream := &Stream{
-		req:         req,
+		c:           client,
+		req:         request,
 		lastEventId: lastEventId,
 		retry:       (time.Millisecond * 3000),
 		Events:      make(chan Event),
@@ -103,7 +112,7 @@ func (stream *Stream) connect() (r io.ReadCloser, err error) {
 
 func (stream *Stream) stream(r io.ReadCloser) {
 	defer r.Close()
-	dec := newDecoder(r)
+	dec := NewDecoder(r)
 	for {
 		ev, err := dec.Decode()
 
@@ -124,7 +133,9 @@ func (stream *Stream) stream(r io.ReadCloser) {
 	backoff := stream.retry
 	for {
 		time.Sleep(backoff)
-		log.Printf("Reconnecting in %0.4f secs", backoff.Seconds())
+		if stream.Logger != nil {
+			stream.Logger.Printf("Reconnecting in %0.4f secs\n", backoff.Seconds())
+		}
 
 		// NOTE: because of the defer we're opening the new connection
 		// before closing the old one. Shouldn't be a problem in practice,

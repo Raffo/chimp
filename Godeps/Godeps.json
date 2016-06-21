@@ -1,6 +1,7 @@
 {
 	"ImportPath": "github.com/zalando/chimp",
 	"GoVersion": "go1.6",
+	"GodepVersion": "v74",
 	"Packages": [
 		"./..."
 	],
@@ -121,7 +122,7 @@
 		},
 		{
 			"ImportPath": "github.com/donovanhide/eventsource",
-			"Rev": "d8a3071799b98cacd30b6da92f536050ccfe6da4"
+			"Rev": "fd1de70867126402be23c306e1ce32828455d85b"
 		},
 		{
 			"ImportPath": "github.com/dustin/go-broadcast",
@@ -129,43 +130,43 @@
 		},
 		{
 			"ImportPath": "github.com/gambol99/go-marathon",
-			"Comment": "v0.0.1-7-gade11d1",
-			"Rev": "ade11d1dc2884ee1f387078fc28509559b6235d1"
+			"Comment": "v0.0.1-64-ga558128",
+			"Rev": "a558128c87724cd7430060ef5aedf39f83937f55"
 		},
 		{
 			"ImportPath": "github.com/gambol99/go-marathon/examples/applications",
-			"Comment": "v0.0.1-7-gade11d1",
-			"Rev": "ade11d1dc2884ee1f387078fc28509559b6235d1"
+			"Comment": "v0.0.1-64-ga558128",
+			"Rev": "a558128c87724cd7430060ef5aedf39f83937f55"
 		},
 		{
 			"ImportPath": "github.com/gambol99/go-marathon/examples/events_callback_transport",
-			"Comment": "v0.0.1-7-gade11d1",
-			"Rev": "ade11d1dc2884ee1f387078fc28509559b6235d1"
+			"Comment": "v0.0.1-64-ga558128",
+			"Rev": "a558128c87724cd7430060ef5aedf39f83937f55"
 		},
 		{
 			"ImportPath": "github.com/gambol99/go-marathon/examples/events_sse_transport",
-			"Comment": "v0.0.1-7-gade11d1",
-			"Rev": "ade11d1dc2884ee1f387078fc28509559b6235d1"
+			"Comment": "v0.0.1-64-ga558128",
+			"Rev": "a558128c87724cd7430060ef5aedf39f83937f55"
 		},
 		{
 			"ImportPath": "github.com/gambol99/go-marathon/examples/glog",
-			"Comment": "v0.0.1-7-gade11d1",
-			"Rev": "ade11d1dc2884ee1f387078fc28509559b6235d1"
+			"Comment": "v0.0.1-64-ga558128",
+			"Rev": "a558128c87724cd7430060ef5aedf39f83937f55"
 		},
 		{
 			"ImportPath": "github.com/gambol99/go-marathon/examples/groups",
-			"Comment": "v0.0.1-7-gade11d1",
-			"Rev": "ade11d1dc2884ee1f387078fc28509559b6235d1"
+			"Comment": "v0.0.1-64-ga558128",
+			"Rev": "a558128c87724cd7430060ef5aedf39f83937f55"
 		},
 		{
 			"ImportPath": "github.com/gambol99/go-marathon/examples/multiple_endpoints",
-			"Comment": "v0.0.1-7-gade11d1",
-			"Rev": "ade11d1dc2884ee1f387078fc28509559b6235d1"
+			"Comment": "v0.0.1-64-ga558128",
+			"Rev": "a558128c87724cd7430060ef5aedf39f83937f55"
 		},
 		{
 			"ImportPath": "github.com/gambol99/go-marathon/examples/tasks",
-			"Comment": "v0.0.1-7-gade11d1",
-			"Rev": "ade11d1dc2884ee1f387078fc28509559b6235d1"
+			"Comment": "v0.0.1-64-ga558128",
+			"Rev": "a558128c87724cd7430060ef5aedf39f83937f55"
 		},
 		{
 			"ImportPath": "github.com/gin-gonic/gin",
