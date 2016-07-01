@@ -117,7 +117,7 @@ func (bc *Client) buildDeploymentURL(name string, params map[string]string, clus
 	if bc.Scheme == "https" && port == 443 {
 		u.Host = host
 	}
-	u.Path = path.Join("/deployments", name)
+	u.Path = path.Join("/deployments", url.QueryEscape(name))
 	q := u.Query()
 	for k := range params {
 		q.Set(k, params[k])
@@ -138,7 +138,7 @@ func (bc *Client) buildDeploymentReplicasURL(name string, replicas int, cluster 
 	q := u.Query()
 	q.Set("force", strconv.FormatBool(force))
 	u.RawQuery = q.Encode()
-	u.Path = path.Join("/deployments", name, "replicas", strconv.Itoa(replicas))
+	u.Path = path.Join("/deployments", url.QueryEscape(name), "replicas", strconv.Itoa(replicas))
 	return u.String()
 }
 
