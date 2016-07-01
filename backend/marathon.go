@@ -160,9 +160,9 @@ func (mb *MarathonBackend) GetApp(req *ArtifactRequest) (*Artifact, error) {
 		Labels:            application.Labels,
 		Env:               application.Env,
 		RunningReplicas:   replicas,
-		RequestedReplicas: application.Instances,
+		RequestedReplicas: *application.Instances,
 		CPUS:              application.CPUs,
-		Memory:            application.Mem,
+		Memory:            *application.Mem,
 		Endpoint:          endpoint,
 	}
 
@@ -185,44 +185,46 @@ func (mb *MarathonBackend) Deploy(cr *CreateRequest) (string, error) {
 	replicas := cr.Replicas
 
 	app.Name(id)
-	app.Uris = strings.Fields(DOCKERCFG)
+	uris := strings.Fields(DOCKERCFG)
+	app.Uris = &uris
 	app.CPU(cpu).Memory(memory).Storage(storage).Count(replicas)
-	app.Env = env
-	portmappings := make([]*marathon.PortMapping, 0, len(ports))
+	app.Env = &env
+	portmappings := make([]marathon.PortMapping, 0, len(ports))
 	for _, port := range ports {
-		portmappings = append(portmappings, &marathon.PortMapping{ContainerPort: port, HostPort: 0, Protocol: "tcp"}) //TODO: change to protocol params, we probably want to have UDP too.
+		portmappings = append(portmappings, marathon.PortMapping{ContainerPort: port, HostPort: 0, Protocol: "tcp"}) //TODO: change to protocol params, we probably want to have UDP too.
 	}
 
-	app.Container.Docker.PortMappings = portmappings
+	app.Container.Docker.PortMappings = &portmappings
 	//fluentd implementation
 	if conf.New().FluentdEnabled {
-		app.Container.Docker.Parameter("log-driver", "fluentd")
-		app.Container.Docker.Parameter("log-opt", "\"fluentd-address=localhost:24224\"")
+		app.Container.Docker.AddParameter("log-driver", "fluentd")
+		app.Container.Docker.AddParameter("log-opt", "\"fluentd-address=localhost:24224\"")
 		if DOCKERVERSION == "1.9" {
 			//this is unsupported if docker < 1.9
-			app.Container.Docker.Parameter("log-opt", "\"tag={{.ImageName}}/{{.Name}}\"")
+			app.Container.Docker.AddParameter("log-opt", "\"tag={{.ImageName}}/{{.Name}}\"")
 		} else {
-			app.Container.Docker.Parameter("log-opt", "\"fluentd-tag={{.Name}}\"")
+			app.Container.Docker.AddParameter("log-opt", "\"fluentd-tag={{.Name}}\"")
 		}
 
 	}
-	app.Labels = labels
-
-	app.Container.Docker.Container(imageurl).ForcePullImage = true
-	volumes := make([]*marathon.Volume, 0, len(cr.Volumes))
+	app.Labels = &labels
+	forcepull := true
+	app.Container.Docker.Container(imageurl).ForcePullImage = &forcepull
+	volumes := make([]marathon.Volume, 0, len(cr.Volumes))
 	for _, volume := range cr.Volumes {
-		volumes = append(volumes, &marathon.Volume{ContainerPath: volume.ContainerPath, HostPath: volume.HostPath, Mode: volume.Mode})
+		volumes = append(volumes, marathon.Volume{ContainerPath: volume.ContainerPath, HostPath: volume.HostPath, Mode: volume.Mode})
 	}
 
-	app.Container.Volumes = volumes
+	app.Container.Volumes = &volumes
 
 	//forcing basic health checks by default.
 	//TODO  must be configurable later.
-	checks := make([]*marathon.HealthCheck, 0, 2)
-	httpHealth := marathon.HealthCheck{Protocol: "HTTP", Path: "/health", GracePeriodSeconds: 3, IntervalSeconds: 10, MaxConsecutiveFailures: 10}
-	cmdHealth := marathon.HealthCheck{Protocol: "COMMAND", Command: &marathon.Command{Value: "curl -f -X GET  http://$HOST:$PORT0/health"}, MaxConsecutiveFailures: 10}
-	checks = append(checks, &httpHealth)
-	checks = append(checks, &cmdHealth)
+	//checks := make([]*marathon.HealthCheck, 0, 2)
+	//health := "/health"
+	// httpHealth := marathon.HealthCheck{Protocol: "HTTP", Path: &health, GracePeriodSeconds: 3, IntervalSeconds: 10, MaxConsecutiveFailures: 10}
+	// cmdHealth := marathon.HealthCheck{Protocol: "COMMAND", Command: &marathon.Command{Value: "curl -f -X GET  http://$HOST:$PORT0/health"}, MaxConsecutiveFailures: 10}
+	// checks = append(checks, &httpHealth)
+	// checks = append(checks, &cmdHealth)
 	//app.HealthChecks = checks //FIXME health check has been removed because they were constantly killing the instances.
 	application, err := mb.Client.CreateApplication(app)
 	glog.Info(application) //TODO do we want to get some more information? Container IDs? I guess they can be not stable
@@ -278,23 +280,25 @@ func (mb *MarathonBackend) UpdateDeployment(req *UpdateRequest) (string, error) 
 	replicas := req.Replicas
 
 	app.Name(id)
-	app.Uris = strings.Fields(DOCKERCFG)
+	uris := strings.Fields(DOCKERCFG)
+	app.Uris = &uris
 	app.CPU(cpu)
 	app.Memory(memory)
 	app.Storage(storage)
 	app.Count(replicas)
-	app.Env = env
-	portmappings := make([]*marathon.PortMapping, 0, len(ports))
+	app.Env = &env
+	portmappings := make([]marathon.PortMapping, 0, len(ports))
 	for _, port := range ports {
-		portmappings = append(portmappings, &marathon.PortMapping{ContainerPort: port, HostPort: 0, Protocol: "tcp"}) //TODO: change to protocol params, we probably want to have UDP too.
+		portmappings = append(portmappings, marathon.PortMapping{ContainerPort: port, HostPort: 0, Protocol: "tcp"}) //TODO: change to protocol params, we probably want to have UDP too.
 	}
 
-	app.Container.Docker.PortMappings = portmappings
-	app.Labels = labels
+	app.Container.Docker.PortMappings = &portmappings
+	app.Labels = &labels
 
-	app.Container.Docker.Container(imageurl).ForcePullImage = true
+	forcepull := true
+	app.Container.Docker.Container(imageurl).ForcePullImage = &forcepull
 
-	appID, err := mb.Client.UpdateApplication(app)
+	appID, err := mb.Client.UpdateApplication(app, true) //by default force update are true
 	if err != nil {
 		return "", err
 	}

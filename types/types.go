@@ -49,16 +49,16 @@ type Replica struct {
 
 //Artifact is used to  retrieve information on an app
 type Artifact struct {
-	Name              string            `json:"name"`
-	Message           string            `json:"message"`
-	Status            string            `json:"status"`
-	Labels            map[string]string `json:"labels"`
-	Env               map[string]string `json:"env"`
-	RunningReplicas   []*Replica        `json:"runningReplicas"`
-	RequestedReplicas int               `json:"requestedReplicas"`
-	CPUS              float64           `json:"cpus"`
-	Memory            float64           `json:"memory"`
-	Endpoint          string            `json:"endpoint"`
+	Name              string             `json:"name"`
+	Message           string             `json:"message"`
+	Status            string             `json:"status"`
+	Labels            *map[string]string `json:"labels"`
+	Env               *map[string]string `json:"env"`
+	RunningReplicas   []*Replica         `json:"runningReplicas"`
+	RequestedReplicas int                `json:"requestedReplicas"`
+	CPUS              float64            `json:"cpus"`
+	Memory            float64            `json:"memory"`
+	Endpoint          string             `json:"endpoint"`
 }
 
 //PortType represents the port and protocol used
