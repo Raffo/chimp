@@ -117,7 +117,7 @@ func (bc *Client) buildDeploymentURL(name string, params map[string]string, clus
 	if bc.Scheme == "https" && port == 443 {
 		u.Host = host
 	}
-	u.Path = path.Join("/deployments", name)
+	u.Path = path.Join("/deployments", url.QueryEscape(name))
 	q := u.Query()
 	for k := range params {
 		q.Set(k, params[k])
@@ -138,7 +138,7 @@ func (bc *Client) buildDeploymentReplicasURL(name string, replicas int, cluster 
 	q := u.Query()
 	q.Set("force", strconv.FormatBool(force))
 	u.RawQuery = q.Encode()
-	u.Path = path.Join("/deployments", name, "replicas", strconv.Itoa(replicas))
+	u.Path = path.Join("/deployments", url.QueryEscape(name), "replicas", strconv.Itoa(replicas))
 	return u.String()
 }
 
@@ -404,7 +404,7 @@ func printInfoTable(verbose bool, artifact Artifact) {
 		settingsTable := printer.NewWriter(os.Stdout)
 		settingsTable.SetRowLine(true)
 		settingsTable.SetHeader([]string{"Env name", "value"})
-		for k, v := range artifact.Env {
+		for k, v := range *artifact.Env {
 			sRow := make([]string, 0, 2)
 			sRow = append(sRow, k)
 			sRow = append(sRow, v)
@@ -415,7 +415,7 @@ func printInfoTable(verbose bool, artifact Artifact) {
 		labelsTable := printer.NewWriter(os.Stdout)
 		labelsTable.SetRowLine(true)
 		labelsTable.SetHeader([]string{"Label", "value"})
-		for k, v := range artifact.Labels {
+		for k, v := range *artifact.Labels {
 			sRow := make([]string, 0, 2)
 			sRow = append(sRow, k)
 			sRow = append(sRow, v)
