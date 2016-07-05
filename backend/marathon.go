@@ -217,15 +217,7 @@ func (mb *MarathonBackend) Deploy(cr *CreateRequest) (string, error) {
 
 	app.Container.Volumes = &volumes
 
-	//forcing basic health checks by default.
-	//TODO  must be configurable later.
-	//checks := make([]*marathon.HealthCheck, 0, 2)
-	//health := "/health"
-	// httpHealth := marathon.HealthCheck{Protocol: "HTTP", Path: &health, GracePeriodSeconds: 3, IntervalSeconds: 10, MaxConsecutiveFailures: 10}
-	// cmdHealth := marathon.HealthCheck{Protocol: "COMMAND", Command: &marathon.Command{Value: "curl -f -X GET  http://$HOST:$PORT0/health"}, MaxConsecutiveFailures: 10}
-	// checks = append(checks, &httpHealth)
-	// checks = append(checks, &cmdHealth)
-	//app.HealthChecks = checks //FIXME health check has been removed because they were constantly killing the instances.
+	//TODO must implement configurable health checks
 	application, err := mb.Client.CreateApplication(app)
 	glog.Info(application) //TODO do we want to get some more information? Container IDs? I guess they can be not stable
 	if err != nil {
