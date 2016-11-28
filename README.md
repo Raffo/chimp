@@ -13,9 +13,9 @@ Here are some ways you can use Chimp:
 Chimp is designed to support replaceable backends and enable users to opt-out of OAuth2, SSL, etc.
 
 ### Project Status
-Chimp is in active development. You can consider the master branch "stable," but breaking changes are still possible. Breaking changes will be developed in short-lived branches.
+Chimp is *not anymore* in active development. You can consider the master branch "stable".
 
-The current version doesn't offer functioning support for Kubernetes. Let us know if you'd like to become a contributor and work on this.
+The current version doesn't offer functioning support for Kubernetes, but only supports Marathon. Let us know if you'd like to become a contributor and/or provide some useful ideas for future developments. 
 
 ## CHIMP Server
 
